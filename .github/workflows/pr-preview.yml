@@ -1,7 +1,7 @@
 name: PR Preview Deployment
 
 on:
-  pull_request:
+  pull_request_target:
     types: [opened, synchronize, reopened]
     branches:
       - main
@@ -16,7 +16,7 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     environment:
-      name: github-pages
+      name: github-pages-preview
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Checkout repository
