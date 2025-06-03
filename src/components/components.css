@@ -85,14 +85,15 @@ input[type='text']:focus {
 /* Styling for individual clickable bits */
 .clickable-bit {
   display: inline-block;
-  padding: 3px 4px; /* Reduced padding */
-  margin: 1px; /* Reduced margin */
+  padding: 1px 2px; /* Further reduced padding for max density */
+  margin: 0 1px; /* No vertical margin, minimal horizontal margin */
   border: 1px solid #ccc;
-  border-radius: 3px; /* Slightly reduced radius */
+  border-radius: 2px; /* Minimal border radius */
   cursor: pointer;
   user-select: none; /* Prevents text selection on click */
   font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
-  min-width: 1.3em; /* Reduced min-width */
+  font-size: 0.9em; /* Slightly reduced font size for density */
+  min-width: 1.1em; /* Further reduced min-width */
   text-align: center;
   line-height: 1.2; /* Ensure text is vertically centered */
   transition: background-color 0.2s ease, border-color 0.2s ease; /* Smooth hover */
