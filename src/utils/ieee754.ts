@@ -1,5 +1,7 @@
 // src/utils/ieee754.ts
 
+import { Decimal } from 'decimal.js';
+
 export const EXPONENT_BITS = 11;
 export const SIGNIFICAND_BITS = 52;
 export const EXPONENT_BIAS = (1 << (EXPONENT_BITS - 1)) - 1; // 1023
@@ -10,6 +12,13 @@ export interface Ieee754Bits {
   significand: string;
   originalInput?: string | number; // To store what was actually typed or resulted in these bits
   isSpecial?: boolean; // For NaN, Infinity
+}
+
+export interface ExactDecimal {
+  value: string;
+  isDenormalized: boolean;
+  isSpecial: boolean;
+  originalString?: string; // For NaN, Infinity, -0
 }
 
 export function convertDecimalToBits(numberInput: number | string): Ieee754Bits {
@@ -50,37 +59,67 @@ export function convertDecimalToBits(numberInput: number | string): Ieee754Bits 
   };
 }
 
-export function convertBitsToDecimal(sign: string, exponent: string, significand: string): number | string {
-  if (sign.length !== 1 || exponent.length !== EXPONENT_BITS || significand.length !== SIGNIFICAND_BITS ||
-      !/^[01]+$/.test(sign + exponent + significand)) {
-    //This case should ideally be prevented by input validation before calling
-    return '無効なビット入力';
+export function convertBitsToDecimal(signStr: string, exponentStr: string, significandStr: string): ExactDecimal | string {
+  if (signStr.length !== 1 || exponentStr.length !== EXPONENT_BITS || significandStr.length !== SIGNIFICAND_BITS ||
+      !/^[01]+$/.test(signStr + exponentStr + significandStr)) {
+    return '無効なビット入力'; // Invalid bit input
   }
 
-  const binaryString = sign + exponent + significand;
+  const sign = parseInt(signStr, 2);
+  const exponentValue = parseInt(exponentStr, 2);
 
-  // Check for special values
-  const isExponentAllOnes = exponent === '1'.repeat(EXPONENT_BITS);
-  const isSignificandZero = significand === '0'.repeat(SIGNIFICAND_BITS);
+  const isExponentAllOnes = exponentStr === '1'.repeat(EXPONENT_BITS);
+  const isSignificandZero = significandStr === '0'.repeat(SIGNIFICAND_BITS);
 
   if (isExponentAllOnes) {
     if (isSignificandZero) {
-      return sign === '1' ? -Infinity : Infinity;
+      const valStr = sign === 1 ? '-Infinity' : 'Infinity';
+      return { value: valStr, isDenormalized: false, isSpecial: true, originalString: valStr };
     }
-    return NaN; // Significand non-zero
+    return { value: 'NaN', isDenormalized: false, isSpecial: true, originalString: 'NaN' };
   }
 
-  // Denormalized numbers (exponent is all zeros, significand is non-zero)
-  // Or signed zero (exponent is all zeros, significand is all zeros)
-  // The DataView conversion handles these cases correctly.
-
-  const buffer = new ArrayBuffer(8);
-  const floatView = new DataView(buffer);
-
-  for (let i = 0; i < 8; i++) {
-    floatView.setUint8(i, parseInt(binaryString.substring(i * 8, (i + 1) * 8), 2));
+  if (exponentValue === 0 && isSignificandZero) {
+    const valStr = sign === 1 ? '-0' : '0';
+    return { value: valStr, isDenormalized: false, isSpecial: false, originalString: valStr };
   }
 
-  const result = floatView.getFloat64(0, false);
-  return result;
+  Decimal.set({ precision: 100 }); // Set precision for decimal.js
+
+  let calculatedSignificandFraction = new Decimal(0);
+  for (let i = 0; i < significandStr.length; i++) {
+    if (significandStr[i] === '1') {
+      calculatedSignificandFraction = calculatedSignificandFraction.plus(new Decimal(1).div(new Decimal(2).pow(i + 1)));
+    }
+  }
+
+  let value: Decimal;
+  const isDenormalized = exponentValue === 0 && !isSignificandZero;
+
+  if (isDenormalized) {
+    // For denormalized numbers, the value is: (-1)^sign * (0 + significand_fraction) * 2^(1 - bias).
+    const effectiveExponent = 1 - EXPONENT_BIAS;
+    value = calculatedSignificandFraction.times(new Decimal(2).pow(effectiveExponent));
+  } else {
+    // For normal numbers, the value is: (-1)^sign * (1 + significand_fraction) * 2^(exponent - bias).
+    const effectiveExponent = exponentValue - EXPONENT_BIAS;
+    value = new Decimal(1).plus(calculatedSignificandFraction).times(new Decimal(2).pow(effectiveExponent));
+  }
+
+  if (sign === 1) {
+    // Check if value is already -0, which is handled by the (exponentValue === 0 && isSignificandZero) block.
+    // Otherwise, negate.
+    // This check for -0 is important because negating 0 would give -0, but we want to preserve the originalString for -0.
+    if (!(value.isZero() && exponentValue === 0 && isSignificandZero)) {
+        value = value.negated();
+    }
+  }
+
+  return {
+    value: value.toString(),
+    isDenormalized: isDenormalized,
+    isSpecial: false
+    // originalString is not set here for normal/denormalized numbers as it's covered by 'value'
+    // or explicitly handled for special cases like -0 above.
+  };
 }
