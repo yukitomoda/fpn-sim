@@ -1,6 +1,6 @@
 /* src/components/components.css */
 .app-container {
-  max-width: 850px;
+  max-width: 1300px;
   margin: 20px auto;
   padding: 20px;
   background-color: #ffffff;
@@ -14,7 +14,9 @@
   margin-bottom: 25px;
 }
 
-.input-section, .bit-representation-section, .output-section {
+.input-section,
+.bit-representation-section,
+.output-section {
   margin-bottom: 25px;
   padding: 20px;
   border: 1px solid #e0e0e0;
@@ -85,18 +87,34 @@ input[type='text']:focus {
 /* Styling for individual clickable bits */
 .clickable-bit {
   display: inline-block;
-  padding: 1px 2px; /* Further reduced padding for max density */
-  margin: 0 1px; /* No vertical margin, minimal horizontal margin */
+  padding: 4px 0;
+  /* Further reduced padding for max density */
+  margin: 0 0;
+  /* No vertical margin, minimal horizontal margin */
   border: 1px solid #ccc;
-  border-radius: 2px; /* Minimal border radius */
+  border-radius: 2px;
+  /* Minimal border radius */
   cursor: pointer;
-  user-select: none; /* Prevents text selection on click */
+  user-select: none;
+  /* Prevents text selection on click */
   font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
-  font-size: 0.9em; /* Slightly reduced font size for density */
-  min-width: 1.1em; /* Further reduced min-width */
+  font-size: 0.9em;
+  /* Slightly reduced font size for density */
+  min-width: 1.1em;
+  /* Further reduced min-width */
   text-align: center;
-  line-height: 1.2; /* Ensure text is vertically centered */
-  transition: background-color 0.2s ease, border-color 0.2s ease; /* Smooth hover */
+  line-height: 1.2;
+  /* Ensure text is vertically centered */
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+  /* Smooth hover */
+}
+
+.clickable-bit:nth-last-child(4n) {
+  margin-left: 0.2em;
+}
+
+.clickable-bit:nth-last-child(8n) {
+  margin-left: 0.5em;
 }
 
 .clickable-bit:hover {
@@ -106,23 +124,43 @@ input[type='text']:focus {
 
 /* Specific bit spans can inherit from clickable-bit. Add specific styles if needed. */
 .sign-bit-span {}
+
 .exponent-bit-span {}
+
 .significand-bit-span {}
 
 /* Container for scrollable bits within exponent and significand groups */
 .bits-scroll-container {
   white-space: nowrap;
   overflow-x: auto;
-  padding-bottom: 8px; /* Space for scrollbar not to overlap content visually */
+  padding-bottom: 8px;
+  /* Space for scrollbar not to overlap content visually */
   /* The following are important for elements inside a flex item (.bit-group) */
   /* to behave correctly with overflow and potential shrinking. */
-  min-width: 0; /* Allows the container to shrink if necessary before scrolling */
+  min-width: 0;
+  /* Allows the container to shrink if necessary before scrolling */
 }
 
 /* Ensure the bit groups can still grow but also accommodate the scroll container */
-.sign-bit { min-width: 80px; flex-basis: 100px; } /* Adjusted for new bit styling */
-.exponent-bits { min-width: 180px; flex-basis: 220px; } /* Adjusted */
-.significand-bits { min-width: 280px; flex-basis: 450px; flex-grow: 2; } /* Adjusted */
+.sign-bit {
+  min-width: 80px;
+  flex-basis: 100px;
+}
+
+/* Adjusted for new bit styling */
+.exponent-bits {
+  min-width: 180px;
+  flex-basis: 220px;
+}
+
+/* Adjusted */
+.significand-bits {
+  min-width: 280px;
+  flex-basis: 850px;
+  flex-grow: 2;
+}
+
+/* Adjusted */
 
 
 .output-section {
@@ -148,7 +186,10 @@ input[type='text']:focus {
     flex-direction: column;
     gap: 15px;
   }
-  .sign-bit, .exponent-bits, .significand-bits {
+
+  .sign-bit,
+  .exponent-bits,
+  .significand-bits {
     width: 100%;
     min-width: unset;
     flex-basis: auto;
