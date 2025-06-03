@@ -270,11 +270,14 @@ const App: Component = () => {
           <BitRepresentationInput
             sign={signBitString}
             exponent={exponentBitString}
-        significand={significandBitString}
-        onSignBitClick={handleSignBitClick}
-        onExponentBitClick={handleExponentBitClick}
-        onSignificandBitClick={handleSignificandBitClick}
-      />
+            significand={significandBitString}
+            onSignBitClick={handleSignBitClick}
+            onExponentBitClick={handleExponentBitClick}
+            onSignificandBitClick={handleSignificandBitClick}
+          />
+        </div> {/* Closes sliders-and-bits-group */}
+      </div> {/* Closes interactive-controls-section */}
+
       <OutputDisplay
         decimalFromBits={decimalFromBits}
         originalInput={displayedOriginalInput}
