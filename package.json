@@ -6,14 +6,21 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest",
+    "test:ui": "vitest --ui"
   },
   "dependencies": {
+    "decimal.js": "^10.5.0",
     "solid-js": "^1.9.5"
   },
   "devDependencies": {
+    "@solidjs/testing-library": "^0.8.10",
+    "@vitest/ui": "^3.2.0",
+    "jsdom": "^26.1.0",
     "typescript": "~5.8.3",
     "vite": "^6.3.5",
-    "vite-plugin-solid": "^2.11.6"
+    "vite-plugin-solid": "^2.11.6",
+    "vitest": "^3.2.0"
   }
 }
