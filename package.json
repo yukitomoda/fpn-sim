@@ -15,6 +15,7 @@
     "solid-js": "^1.9.5"
   },
   "devDependencies": {
+    "@solidjs/testing-library": "^0.8.10",
     "@vitest/ui": "^3.2.0",
     "jsdom": "^26.1.0",
     "typescript": "~5.8.3",

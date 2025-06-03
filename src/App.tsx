@@ -4,7 +4,7 @@ import { createSignal, createEffect, createMemo, untrack } from 'solid-js';
 import NumberInput from './components/NumberInput';
 import BitRepresentationInput from './components/BitRepresentationInput';
 import OutputDisplay from './components/OutputDisplay';
-import { convertDecimalToBits, convertBitsToDecimal, EXPONENT_BITS, SIGNIFICAND_BITS } from './utils/ieee754';
+import { convertDecimalToBits, convertBitsToDecimal, EXPONENT_BITS, SIGNIFICAND_BITS, ExactDecimal } from './utils/ieee754'; // Added ExactDecimal
 import type { Ieee754Bits } from './utils/ieee754'; // Explicit type import
 import './components/components.css';
 
@@ -65,35 +65,30 @@ const App: Component = () => {
   };
 
   // Memo to calculate decimal from current bit strings
-  const decimalFromBits = createMemo<number | string>(() => {
+  const decimalFromBits = createMemo<ExactDecimal | string>(() => { // Changed type here
     const s = signBitString();
     const e = exponentBitString();
     const m = significandBitString();
 
     if (s.length === 1 && e.length === EXPONENT_BITS && m.length === SIGNIFICAND_BITS && /^[01]+$/.test(s+e+m) ) {
-       const val = convertBitsToDecimal(s, e, m);
+       const result = convertBitsToDecimal(s, e, m); // result is ExactDecimal | string
         // If the bits were the last thing changed, update the decimalStringInput to reflect this
-        if (!isLastChangeFromDecimal() && !Object.is(val, parseFloat(decimalStringInput())) ) {
-           // Check if val is NaN, Infinity, -Infinity to set string appropriately
-           if (typeof val === 'number' && !isNaN(val) && isFinite(val)) {
-             setDecimalStringInput(val.toString());
-           } else if (isNaN(val)) {
-             setDecimalStringInput('NaN');
-           } else if (val === Infinity) {
-             setDecimalStringInput('Infinity');
-           } else if (val === -Infinity) {
-             setDecimalStringInput('-Infinity');
-           } else {
-             // Fallback for other string results from convertBitsToDecimal
-             setDecimalStringInput(String(val));
-           }
+        if (!isLastChangeFromDecimal()) {
+          if (typeof result === 'object' && result !== null) {
+            // result is ExactDecimal
+            const newDecimalString = result.originalString !== undefined ? result.originalString : result.value;
+            if (newDecimalString !== untrack(decimalStringInput)) {
+              setDecimalStringInput(newDecimalString);
+            }
+          }
+          // If result is a string (error message), do not update decimalStringInput
         }
-       return val;
+       return result;
     }
     // If bits are not complete/valid for conversion, reflect that.
     // This state implies user is still typing or bits are invalid.
-    if (s === '' && e === '' && m === '') return ''; // Empty state
-    return 'ビット入力が無効または不完全';
+    if (s === '' && e === '' && m === '') return ''; // Empty state, considered a string for the memo type
+    return 'ビット入力が無効または不完全'; // This is a string, fitting ExactDecimal | string
   });
 
   // Memo for the original input display, which should reflect the decimal input field
