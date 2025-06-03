@@ -195,3 +195,44 @@ input[type='text']:focus {
     flex-basis: auto;
   }
 }
+
+/* src/components/components.css */
+/* ... existing styles ... */
+
+.slider-section {
+  margin-top: 15px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.slider-section label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.slider-section input[type="range"] {
+  width: 100%;
+}
+
+.visual-adjuster-section {
+  margin-top: 15px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  /* display: flex; */ /* Using this might require child elements to be adjusted */
+  /* flex-direction: column; */
+  /* align-items: center; */ /* Center canvas if it's narrower than section */
+}
+
+.visual-adjuster-section label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 600; /* Consistent with other labels */
+}
+
+.visual-adjuster-section canvas {
+  border: 1px solid black; /* Already in component, but can be centralized here */
+  cursor: crosshair;     /* Already in component */
+  /* margin: 0 auto; */ /* If centered alignment is desired */
+}
