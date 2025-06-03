@@ -16,31 +16,52 @@ const App: Component = () => {
 
   const [isLastChangeFromDecimal, setIsLastChangeFromDecimal] = createSignal<boolean>(true);
 
-  // Effect to update bits when decimalStringInput changes
+  // Helper function to toggle a bit in a string
+  const toggleBitAtIndex = (bitString: string, index: number): string => {
+    const bitArray = bitString.split('');
+    if (index >= 0 && index < bitArray.length) {
+      bitArray[index] = bitArray[index] === '0' ? '1' : '0';
+      return bitArray.join('');
+    }
+    // If index is out of bounds, return original string or handle error
+    // For robustness, ensure the string is always of expected length by padding if necessary
+    // However, current logic relies on initial conversion to set correct lengths.
+    return bitString;
+  };
+
+  // Effect to update bits when decimalStringInput changes AND it was the last source of change
   createEffect(() => {
     const currentDecimalStr = decimalStringInput();
-    // Untrack previous bit values to avoid self-triggering if we set them
-    untrack(() => {
-      const bits = convertDecimalToBits(currentDecimalStr);
-      setSignBitString(bits.sign);
-      setExponentBitString(bits.exponent);
-      setSignificandBitString(bits.significand);
-      if (isLastChangeFromDecimal()) {
-        // If decimal was the source, update bit strings
-      }
-    });
+    // Only update bits if the decimal input was the last thing changed by the user
+    if (isLastChangeFromDecimal()) {
+      untrack(() => { // Untrack to prevent loop if convertDecimalToBits somehow triggers a read
+        const bits = convertDecimalToBits(currentDecimalStr);
+        setSignBitString(bits.sign);
+        setExponentBitString(bits.exponent);
+        setSignificandBitString(bits.significand);
+      });
+    }
   });
 
   const handleDecimalChange = (value: string) => {
-    setIsLastChangeFromDecimal(true);
+    setIsLastChangeFromDecimal(true); // Mark decimal as the source of truth
     setDecimalStringInput(value);
+    // Bits will be updated by the createEffect above
   };
 
-  const handleBitChange = (newBits: Partial<Ieee754Bits>) => {
+  const handleSignBitClick = () => {
     setIsLastChangeFromDecimal(false);
-    if (newBits.sign !== undefined) setSignBitString(newBits.sign);
-    if (newBits.exponent !== undefined) setExponentBitString(newBits.exponent);
-    if (newBits.significand !== undefined) setSignificandBitString(newBits.significand);
+    setSignBitString(prev => (prev === '0' ? '1' : '0'));
+  };
+
+  const handleExponentBitClick = (index: number) => {
+    setIsLastChangeFromDecimal(false);
+    setExponentBitString(prev => toggleBitAtIndex(prev, index));
+  };
+
+  const handleSignificandBitClick = (index: number) => {
+    setIsLastChangeFromDecimal(false);
+    setSignificandBitString(prev => toggleBitAtIndex(prev, index));
   };
 
   // Memo to calculate decimal from current bit strings
@@ -101,9 +122,9 @@ const App: Component = () => {
         sign={signBitString}
         exponent={exponentBitString}
         significand={significandBitString}
-        onSignChange={(val) => handleBitChange({ sign: val })}
-        onExponentChange={(val) => handleBitChange({ exponent: val })}
-        onSignificandChange={(val) => handleBitChange({ significand: val })}
+        onSignBitClick={handleSignBitClick}
+        onExponentBitClick={handleExponentBitClick}
+        onSignificandBitClick={handleSignificandBitClick}
       />
       <OutputDisplay
         decimalFromBits={decimalFromBits}
