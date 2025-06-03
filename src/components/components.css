@@ -1,0 +1,117 @@
+/* src/components/components.css */
+.app-container {
+  max-width: 850px;
+  margin: 20px auto;
+  padding: 20px;
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.app-container h1 {
+  text-align: center;
+  color: #1a73e8;
+  margin-bottom: 25px;
+}
+
+.input-section, .bit-representation-section, .output-section {
+  margin-bottom: 25px;
+  padding: 20px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+}
+
+.bit-representation-section h2 {
+  font-size: 1.2em;
+  color: #333;
+  margin-top: 0;
+  margin-bottom: 15px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+}
+
+label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #555;
+}
+
+input[type='number'],
+input[type='text'] {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+input[type='number']:focus,
+input[type='text']:focus {
+  border-color: #1a73e8;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.25);
+}
+
+.bit-display {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.bit-group {
+  padding: 15px;
+  border: 1px solid #dcdcdc;
+  border-radius: 6px;
+  background-color: #ffffff;
+  flex-grow: 1;
+}
+
+.bit-group label {
+  font-size: 0.9em;
+  color: #444;
+  margin-bottom: 6px;
+}
+
+.bit-group input[type='text'] {
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+  letter-spacing: 1.5px;
+}
+
+.sign-bit { min-width: 70px; flex-basis: 70px; }
+.exponent-bits { min-width: 160px; flex-basis: 160px; }
+.significand-bits { min-width: 320px; flex-basis: 420px; flex-grow: 2; }
+
+.output-section {
+  background-color: #e9f5ff;
+  border-color: #b3d7ff;
+}
+
+.output-section p {
+  font-size: 1.1em;
+  margin: 10px 0;
+  color: #222;
+}
+
+.output-section span {
+  font-weight: bold;
+  color: #0056b3;
+  word-break: break-all;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .bit-display {
+    flex-direction: column;
+    gap: 15px;
+  }
+  .sign-bit, .exponent-bits, .significand-bits {
+    width: 100%;
+    min-width: unset;
+    flex-basis: auto;
+  }
+}
