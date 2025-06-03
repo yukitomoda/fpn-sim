@@ -4,8 +4,8 @@ import { createSignal, createEffect, createMemo, untrack } from 'solid-js';
 import NumberInput from './components/NumberInput';
 import BitRepresentationInput from './components/BitRepresentationInput';
 import OutputDisplay from './components/OutputDisplay';
-import { convertDecimalToBits, convertBitsToDecimal, EXPONENT_BITS, SIGNIFICAND_BITS, ExactDecimal } from './utils/ieee754'; // Added ExactDecimal
-import type { Ieee754Bits } from './utils/ieee754'; // Explicit type import
+import { convertDecimalToBits, convertBitsToDecimal, EXPONENT_BITS, SIGNIFICAND_BITS } from './utils/ieee754'; // Removed ExactDecimal
+import type { Ieee754Bits, ExactDecimal } from './utils/ieee754'; // Added ExactDecimal here
 import './components/components.css';
 
 const App: Component = () => {
