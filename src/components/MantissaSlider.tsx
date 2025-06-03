@@ -21,7 +21,7 @@ const MantissaSlider: Component<MantissaSliderProps> = (props) => {
 
   return (
     <div class="slider-section">
-      <label for="mantissaSlider">Mantissa (Fractional Value: {props.value().toFixed(5)}):</label>
+      <label for="mantissaSlider">仮数 (小数部: {props.value().toFixed(5)}):</label>
       <input
         type="range"
         id="mantissaSlider"

@@ -246,9 +246,19 @@ const App: Component = () => {
         value={decimalStringInput}
         onInput={handleDecimalChange}
       />
-      {/* Slider components */}
-      <div style="display: flex; gap: 20px; margin-bottom: 20px;">
-        <div style="flex-basis: 50%;">
+      {/* Interactive Controls Section */}
+      <div class="interactive-controls-section">
+        {/* Visual Adjuster might take up a certain portion of width */}
+        <div style="flex-basis: 320px; /* Adjust as needed based on VisualValueAdjuster width */">
+          <VisualValueAdjuster
+            storedExponent={storedExponentValue}
+            mantissaFraction={mantissaFractionValue}
+            onPositionChange={handleVisualAdjusterChange}
+          />
+        </div>
+
+        {/* Sliders and Bits Group, takes remaining width */}
+        <div class="sliders-and-bits-group">
           <ExponentSlider
             value={storedExponentValue}
             onInput={handleExponentSliderChange}
@@ -257,18 +267,9 @@ const App: Component = () => {
             value={mantissaFractionValue}
             onInput={handleMantissaSliderChange}
           />
-        </div>
-        <div style="flex-basis: 50%;">
-          <VisualValueAdjuster
-            storedExponent={storedExponentValue}
-            mantissaFraction={mantissaFractionValue}
-            onPositionChange={handleVisualAdjusterChange}
-          />
-        </div>
-      </div>
-      <BitRepresentationInput
-        sign={signBitString}
-        exponent={exponentBitString}
+          <BitRepresentationInput
+            sign={signBitString}
+            exponent={exponentBitString}
         significand={significandBitString}
         onSignBitClick={handleSignBitClick}
         onExponentBitClick={handleExponentBitClick}

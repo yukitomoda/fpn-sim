@@ -236,3 +236,33 @@ input[type='text']:focus {
   cursor: crosshair;     /* Already in component */
   /* margin: 0 auto; */ /* If centered alignment is desired */
 }
+
+.interactive-controls-section {
+  display: flex;
+  flex-wrap: wrap; /* Allow wrapping if screen is too narrow */
+  gap: 20px; /* Space between visual adjuster and the sliders/bits group */
+  margin-top: 20px;
+  margin-bottom: 20px;
+  padding: 15px; /* Added padding for the section */
+  border: 1px solid #dcdcdc; /* Added border for the section */
+  border-radius: 8px; /* Added border-radius for the section */
+  background-color: #f9f9f9; /* Consistent background */
+}
+
+.sliders-and-bits-group {
+  display: flex;
+  flex-direction: column;
+  gap: 15px; /* Space between sliders and bit input */
+  flex-grow: 1; /* Allow this group to take available space */
+  min-width: 300px; /* Ensure it has some minimum width */
+}
+
+/* Optional: if individual wrappers were used for sliders, for more distinct groups */
+/*
+.control-group {
+  padding: 10px;
+  border: 1px solid #eee;
+  border-radius: 4px;
+  background-color: #ffffff; // Slight distinction from section background
+}
+*/

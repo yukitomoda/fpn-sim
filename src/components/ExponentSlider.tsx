@@ -14,14 +14,14 @@ const ExponentSlider: Component<ExponentSliderProps> = (props) => {
 
   const effectiveExponent = createMemo(() => {
     const stored = props.value();
-    if (stored === 0) return `1 - ${EXPONENT_BIAS} (denormalized/zero)`; // or specific value like 1 - 1023 = -1022
-    if (stored === MAX_STORED_EXPONENT) return 'Special (Infinity/NaN)';
-    return `${stored} - ${EXPONENT_BIAS} = ${stored - EXPONENT_BIAS}`;
+    if (stored === 0) return `${1 - EXPONENT_BIAS} (非正規化数/ゼロ)`;
+    if (stored === MAX_STORED_EXPONENT) return '特殊値 (無限大/NaN)';
+    return `${stored} - ${EXPONENT_BIAS} = ${stored - EXPONENT_BIAS}`; // Calculation can remain
   });
 
   return (
     <div class="slider-section">
-      <label for="exponentSlider">Exponent (Stored: {props.value()}):</label>
+      <label for="exponentSlider">指数 (内部値: {props.value()}):</label>
       <input
         type="range"
         id="exponentSlider"
@@ -31,7 +31,7 @@ const ExponentSlider: Component<ExponentSliderProps> = (props) => {
         onInput={(e) => props.onInput(parseInt(e.currentTarget.value))}
         // disabled={props.isDisabled && props.isDisabled()}
       />
-      <div>Effective Exponent: {effectiveExponent()}</div>
+      <div>実効指数: {effectiveExponent()}</div>
     </div>
   );
 };

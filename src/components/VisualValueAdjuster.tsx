@@ -9,7 +9,7 @@ interface VisualValueAdjusterProps {
   onPositionChange: (exponent: number, fraction: number) => void;
 }
 
-const WIDTH = 300;
+const WIDTH = 450;
 const HEIGHT = 200;
 const POINT_RADIUS = 5;
 const LABEL_OFFSET = 20; // For axis labels
@@ -86,13 +86,14 @@ const VisualValueAdjuster: Component<VisualValueAdjusterProps> = (props) => {
     ctx.fillStyle = '#333';
     ctx.font = '10px Arial';
     // Y-axis labels
-    ctx.textAlign = 'right';
-    ctx.fillText('0', LABEL_OFFSET - 5, HEIGHT - 2);
-    ctx.fillText(MAX_STORED_EXPONENT.toString(), LABEL_OFFSET - 5, 10);
+    ctx.textAlign = 'left'; // Adjusted alignment for potentially longer Japanese text
+    ctx.fillText('0', 5, HEIGHT - 5); // Adjusted position
+    ctx.fillText(`最大指数 (${MAX_STORED_EXPONENT})`, 5, 15); // Adjusted position & text
     // X-axis labels
-    ctx.textAlign = 'center';
-    ctx.fillText('0.0', LABEL_OFFSET, HEIGHT - LABEL_OFFSET + 15);
-    ctx.fillText('~1.0', WIDTH - LABEL_OFFSET + 5, HEIGHT - LABEL_OFFSET + 15);
+    ctx.textAlign = 'left';
+    ctx.fillText('0.0', 5, HEIGHT - LABEL_OFFSET + 10 ); // Adjusted for consistency
+    ctx.textAlign = 'right';
+    ctx.fillText('ほぼ1.0', WIDTH - 5, HEIGHT - LABEL_OFFSET + 10); // Adjusted position & text
   };
 
   const handleMouseEvent = (event: MouseEvent) => {
@@ -143,8 +144,9 @@ const VisualValueAdjuster: Component<VisualValueAdjusterProps> = (props) => {
 
   return (
     <div class="visual-adjuster-section">
-      <label>Visual Value Adjuster:</label>
+      <label for="visualAdjusterCanvas">2Dビジュアル調整 (Y軸: 指数, X軸: 仮数小数部):</label>
       <canvas
+        id="visualAdjusterCanvas"
         ref={canvasRef}
         width={WIDTH}
         height={HEIGHT}
