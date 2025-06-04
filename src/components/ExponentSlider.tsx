@@ -1,6 +1,7 @@
 // src/components/ExponentSlider.tsx
 import type { Component, Accessor } from 'solid-js';
 import { createMemo } from 'solid-js';
+import { styled } from 'solid-styled-components';
 import { EXPONENT_BIAS, EXPONENT_BITS } from '../utils/ieee754'; // Assuming EXPONENT_BIAS is exported
 
 interface ExponentSliderProps {
@@ -8,6 +9,31 @@ interface ExponentSliderProps {
   onInput: (value: number) => void;
   // isDisabled?: Accessor<boolean>; // Keep for future, but don't implement disabling yet
 }
+
+const StyledSliderContainer = styled.div`
+  margin-top: 15px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+
+  label {
+    display: block;
+    margin-bottom: 5px; /* Specific to slider section */
+    font-weight: 600; /* From general label style */
+    color: #555; /* From general label style */
+  }
+
+  input[type="range"] {
+    width: 100%;
+  }
+
+  /* Styling for the div displaying effective exponent, if needed */
+  div {
+    margin-top: 5px; /* Example: add some space above this text */
+    font-size: 0.9em;
+    color: #333;
+  }
+`;
 
 const ExponentSlider: Component<ExponentSliderProps> = (props) => {
   const MAX_STORED_EXPONENT = (1 << EXPONENT_BITS) - 1; // 2047
@@ -20,7 +46,7 @@ const ExponentSlider: Component<ExponentSliderProps> = (props) => {
   });
 
   return (
-    <div class="slider-section">
+    <StyledSliderContainer>
       <label for="exponentSlider">指数 (内部値: {props.value()}):</label>
       <input
         type="range"
@@ -32,7 +58,7 @@ const ExponentSlider: Component<ExponentSliderProps> = (props) => {
         // disabled={props.isDisabled && props.isDisabled()}
       />
       <div>実効指数: {effectiveExponent()}</div>
-    </div>
+    </StyledSliderContainer>
   );
 };
 

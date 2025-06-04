@@ -1,6 +1,7 @@
 // src/components/VisualValueAdjuster.tsx
 import type { Component, Accessor } from 'solid-js';
 import { createEffect, onMount } from 'solid-js';
+import { styled } from 'solid-styled-components';
 import { EXPONENT_BITS } from '../utils/ieee754'; // For MAX_STORED_EXPONENT
 
 interface VisualValueAdjusterProps {
@@ -13,6 +14,30 @@ const WIDTH = 450;
 const HEIGHT = 200;
 const POINT_RADIUS = 5;
 const LABEL_OFFSET = 20; // For axis labels
+
+const StyledVisualAdjusterContainer = styled.div`
+  margin-top: 15px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  /* display: flex; */ /* Uncomment if flex centering is desired */
+  /* flex-direction: column; */
+  /* align-items: center; */
+
+  label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600; /* Consistent with other labels in components.css */
+    color: #555; /* From general label style */
+  }
+
+  canvas {
+    border: 1px solid black;
+    cursor: crosshair;
+    display: block; /* To allow margin auto to work if uncommented */
+    /* margin: 0 auto; */ /* Uncomment to center canvas */
+  }
+`;
 
 const VisualValueAdjuster: Component<VisualValueAdjusterProps> = (props) => {
   let canvasRef: HTMLCanvasElement | undefined;
@@ -143,7 +168,7 @@ const VisualValueAdjuster: Component<VisualValueAdjusterProps> = (props) => {
   createEffect(draw);
 
   return (
-    <div class="visual-adjuster-section">
+    <StyledVisualAdjusterContainer>
       <label for="visualAdjusterCanvas">2Dビジュアル調整 (Y軸: 指数, X軸: 仮数小数部):</label>
       <canvas
         id="visualAdjusterCanvas"
@@ -154,9 +179,9 @@ const VisualValueAdjuster: Component<VisualValueAdjusterProps> = (props) => {
         onMouseMove={onMouseMove}
         onMouseUp={onMouseUpOrLeave}
         onMouseLeave={onMouseUpOrLeave}
-        style={{ cursor: 'crosshair', border: '1px solid black' }}
+        // style={{ cursor: 'crosshair', border: '1px solid black' }} // Moved to styled component
       />
-    </div>
+    </StyledVisualAdjusterContainer>
   );
 };
 

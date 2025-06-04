@@ -1,6 +1,7 @@
 // src/App.tsx
 import type { Component } from 'solid-js';
 import { createSignal, createEffect, createMemo, untrack } from 'solid-js';
+import { styled } from 'solid-styled-components';
 import NumberInput from './components/NumberInput';
 import BitRepresentationInput from './components/BitRepresentationInput';
 import OutputDisplay from './components/OutputDisplay';
@@ -16,7 +17,46 @@ import {
   SIGNIFICAND_BITS
 } from './utils/ieee754';
 import type { Ieee754Bits, ExactDecimal } from './utils/ieee754';
-import './components/components.css';
+
+const StyledAppContainer = styled.div`
+  max-width: 1300px;
+  margin: 20px auto;
+  padding: 20px;
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+  h1 {
+    text-align: center;
+    color: #1a73e8;
+    margin-bottom: 25px;
+  }
+`;
+
+const StyledInteractiveControlsSection = styled.div`
+  display: flex;
+  flex-wrap: wrap; /* Allow wrapping if screen is too narrow */
+  gap: 20px; /* Space between visual adjuster and the sliders/bits group */
+  margin-top: 20px;
+  margin-bottom: 20px;
+  padding: 15px; /* Added padding for the section */
+  border: 1px solid #dcdcdc; /* Added border for the section */
+  border-radius: 8px; /* Added border-radius for the section */
+  background-color: #f9f9f9; /* Consistent background */
+`;
+
+const StyledVisualAdjusterWrapper = styled.div`
+  flex-basis: 320px; /* Adjust as needed based on VisualValueAdjuster width */
+  /* Add min-width or other flex properties if necessary */
+`;
+
+const StyledSlidersAndBitsGroup = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 15px; /* Space between sliders and bit input */
+  flex-grow: 1; /* Allow this group to take available space */
+  min-width: 300px; /* Ensure it has some minimum width */
+`;
 
 const App: Component = () => {
   const [decimalStringInput, setDecimalStringInput] = createSignal<string>('3.14159');
@@ -240,25 +280,25 @@ const App: Component = () => {
   };
 
   return (
-    <div class="app-container">
+    <StyledAppContainer>
       <h1>IEEE 754 浮動小数点数シミュレータ</h1>
       <NumberInput
         value={decimalStringInput}
         onInput={handleDecimalChange}
       />
       {/* Interactive Controls Section */}
-      <div class="interactive-controls-section">
+      <StyledInteractiveControlsSection>
         {/* Visual Adjuster might take up a certain portion of width */}
-        <div style="flex-basis: 320px; /* Adjust as needed based on VisualValueAdjuster width */">
+        <StyledVisualAdjusterWrapper>
           <VisualValueAdjuster
             storedExponent={storedExponentValue}
             mantissaFraction={mantissaFractionValue}
             onPositionChange={handleVisualAdjusterChange}
           />
-        </div>
+        </StyledVisualAdjusterWrapper>
 
         {/* Sliders and Bits Group, takes remaining width */}
-        <div class="sliders-and-bits-group">
+        <StyledSlidersAndBitsGroup>
           <ExponentSlider
             value={storedExponentValue}
             onInput={handleExponentSliderChange}
@@ -275,14 +315,14 @@ const App: Component = () => {
             onExponentBitClick={handleExponentBitClick}
             onSignificandBitClick={handleSignificandBitClick}
           />
-        </div> {/* Closes sliders-and-bits-group */}
-      </div> {/* Closes interactive-controls-section */}
+        </StyledSlidersAndBitsGroup> {/* Closes sliders-and-bits-group */}
+      </StyledInteractiveControlsSection> {/* Closes interactive-controls-section */}
 
       <OutputDisplay
         decimalFromBits={decimalFromBits}
         originalInput={displayedOriginalInput}
       />
-    </div>
+    </StyledAppContainer>
   );
 };
 export default App;
