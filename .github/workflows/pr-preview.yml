@@ -29,7 +29,7 @@ jobs:
       - name: Build application
         run: npm run build
         env:
-          VITE_BASE_URL: /pr-${{ github.event.number }}/
+          VITE_BASE_URL: /fpn-sim/pr-${{ github.event.number }}/
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
