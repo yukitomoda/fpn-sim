@@ -122,6 +122,14 @@ input[type='text']:focus {
   border-color: #aaa;
 }
 
+.bit-zero {
+  background-color: #e0e0e0;
+}
+
+.bit-one {
+  background-color: #a0d3ff;
+}
+
 /* Specific bit spans can inherit from clickable-bit. Add specific styles if needed. */
 .sign-bit-span {}
 
