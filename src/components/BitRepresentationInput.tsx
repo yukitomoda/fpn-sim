@@ -1,5 +1,5 @@
 // src/components/BitRepresentationInput.tsx
-import type { Component, Accessor } from 'solid-js';
+import type { Component, Accessor, JSX } from 'solid-js';
 import { EXPONENT_BITS, SIGNIFICAND_BITS } from '../utils/ieee754';
 
 interface BitRepresentationInputProps {
@@ -9,6 +9,8 @@ interface BitRepresentationInputProps {
   onSignBitClick: () => void;
   onExponentBitClick: (index: number) => void;
   onSignificandBitClick: (index: number) => void;
+  exponentSlider?: () => JSX.Element;
+  mantissaSlider?: () => JSX.Element;
 }
 
 const BitRepresentationInput: Component<BitRepresentationInputProps> = (props) => {
@@ -24,6 +26,7 @@ const BitRepresentationInput: Component<BitRepresentationInputProps> = (props) =
           </span>
         </div>
         <div class="bit-group exponent-bits">
+          {props.exponentSlider && props.exponentSlider()}
           <label>指数 ({EXPONENT_BITS}ビット):</label>
           <div class="bits-scroll-container">
             {props.exponent().split('').map((bit, index) => (
@@ -34,6 +37,7 @@ const BitRepresentationInput: Component<BitRepresentationInputProps> = (props) =
           </div>
         </div>
         <div class="bit-group significand-bits">
+          {props.mantissaSlider && props.mantissaSlider()}
           <label>仮数 ({SIGNIFICAND_BITS}ビット):</label>
           <div class="bits-scroll-container">
             {props.significand().split('').map((bit, index) => (

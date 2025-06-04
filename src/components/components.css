@@ -79,6 +79,21 @@ input[type='text']:focus {
   margin-bottom: 6px;
 }
 
+/* Styles for sliders when they are inside a bit-group */
+.bit-group .slider-section {
+  margin-top: 5px; /* Reduced top margin */
+  margin-bottom: 10px; /* Add some space before the bit label */
+  padding: 5px; /* Reduced padding */
+  border: none; /* No border */
+  background-color: transparent; /* Blend with parent background */
+}
+
+/* Ensure slider labels are distinct if needed, though they are already specific */
+.bit-group .slider-section label {
+  /* font-weight: bold; */ /* Example: if needed to differentiate */
+  /* margin-bottom: 4px; */ /* Adjust spacing for slider's own label */
+}
+
 .bit-group input[type='text'] {
   font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
   letter-spacing: 1.5px;

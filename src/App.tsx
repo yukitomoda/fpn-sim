@@ -259,14 +259,6 @@ const App: Component = () => {
 
         {/* Sliders and Bits Group, takes remaining width */}
         <div class="sliders-and-bits-group">
-          <ExponentSlider
-            value={storedExponentValue}
-            onInput={handleExponentSliderChange}
-          />
-          <MantissaSlider
-            value={mantissaFractionValue}
-            onInput={handleMantissaSliderChange}
-          />
           <BitRepresentationInput
             sign={signBitString}
             exponent={exponentBitString}
@@ -274,6 +266,8 @@ const App: Component = () => {
             onSignBitClick={handleSignBitClick}
             onExponentBitClick={handleExponentBitClick}
             onSignificandBitClick={handleSignificandBitClick}
+            exponentSlider={() => <ExponentSlider value={storedExponentValue} onInput={handleExponentSliderChange} />}
+            mantissaSlider={() => <MantissaSlider value={mantissaFractionValue} onInput={handleMantissaSliderChange} />}
           />
         </div> {/* Closes sliders-and-bits-group */}
       </div> {/* Closes interactive-controls-section */}
