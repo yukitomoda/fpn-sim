@@ -104,21 +104,23 @@ const App: Component = () => {
   // +++ Effect to update exactRationalValue from decimalStringInput +++
   createEffect(() => {
     const currentInput = decimalStringInput();
+    console.log('[Debug] ExactRationalEffect: decimalStringInput changed to:', currentInput); // Log input
     if (currentInput.trim() === '') {
       setExactRationalValue(null);
-      // Keep previous error or set a new one like:
-      // setRationalConversionError("Input is empty. Please enter a number.");
-      // For now, let's clear it if input is empty, or let toBigRational handle it
       setRationalConversionError(null);
+      console.log('[Debug] ExactRationalEffect: Input trimmed to empty. Set exactRationalValue to null.'); // Log empty case
       return;
     }
     try {
       const rational = toBigRational(currentInput);
       setExactRationalValue(rational);
       setRationalConversionError(null);
+      console.log('[Debug] ExactRationalEffect: Successfully converted. ExactRational:', rational.toString()); // Log success
     } catch (e: any) {
       setExactRationalValue(null);
-      setRationalConversionError(e.message || 'Invalid input for rational conversion.');
+      const errorMessage = e.message || 'Invalid input for rational conversion.';
+      setRationalConversionError(errorMessage);
+      console.error('[Debug] ExactRationalEffect: Error converting input. Error:', errorMessage, 'Input:', currentInput); // Log error
     }
   });
 
@@ -189,25 +191,24 @@ const App: Component = () => {
 
   // +++ Effect to update floatApproximationAsRational from decimalFromBits +++
   createEffect(() => {
-    const bitsResult = decimalFromBits(); // This is reactive to decimalFromBits memo
+    const bitsResult = decimalFromBits();
+    console.log('[Debug] FloatApproxEffect: decimalFromBits changed. bitsResult:', bitsResult); // Log input
+
     if (typeof bitsResult === 'object' && bitsResult !== null && typeof bitsResult.value === 'number' && isFinite(bitsResult.value)) {
       try {
-        // Use bitsResult.value (the number) for conversion, as toBigRational expects number or string of number
         const rational = toBigRational(bitsResult.value);
         setFloatApproximationAsRational(rational);
+        console.log('[Debug] FloatApproxEffect: Successfully converted float approx. FloatApproxRational:', rational.toString(), 'Input number was:', bitsResult.value); // Log success
       } catch (e: any) {
-        // This might happen if bitsResult.value is a number that toBigRational somehow fails on,
-        // or if toBigRational has an issue with the specific string representation of that number.
-        console.error("Error converting float approximation to rational:", e);
+        console.error('[Debug] FloatApproxEffect: Error converting float approx. Error:', e.message, 'Input number was:', bitsResult.value); // Log error
         setFloatApproximationAsRational(null);
       }
     } else if (typeof bitsResult === 'object' && bitsResult !== null && (bitsResult.originalString === "NaN" || bitsResult.originalString === "Infinity" || bitsResult.originalString === "-Infinity")) {
-      // Handle NaN, Infinity, -Infinity if toBigRational is enhanced to support them
-      // For now, toBigRational will throw for these strings. So set to null.
+      console.log('[Debug] FloatApproxEffect: bitsResult is NaN/Infinity. Setting FloatApproxRational to null. OriginalString:', bitsResult.originalString); // Log NaN/Inf case
       setFloatApproximationAsRational(null);
     }
     else {
-      // If bitsResult is an error string, or some other non-convertible state
+      console.log('[Debug] FloatApproxEffect: bitsResult is not a convertible object or is an error string. Setting FloatApproxRational to null. bitsResult:', bitsResult); // Log other non-convertible cases
       setFloatApproximationAsRational(null);
     }
   });
