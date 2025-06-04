@@ -144,9 +144,12 @@ const App: Component = () => {
             if (parseInt(m, 2) === 0) { // Infinity
               setMantissaFractionValue(0);
             } else { // NaN
-              setMantissaFractionValue(0.5); // Or some other representative NaN fraction
+              // For NaN, the mantissa slider should reflect the actual fraction from bits 'm'
+              setMantissaFractionValue(bitsToMantissaFraction(m));
             }
           }
+          // For non-special numbers, setMantissaFractionValue(bitsToMantissaFraction(m))
+          // is already called prior to this special handling block, so no 'else' needed here.
         });
       }
       return result;
@@ -178,11 +181,9 @@ const App: Component = () => {
         // Mantissa slider determines NaN or Infinity
         if (currentMantissaFraction === 0) { // Infinity
           newSignificandBits = '0'.repeat(SIGNIFICAND_BITS);
-        } else { // NaN - canonical qNaN is 1 + 0... (fraction 0.5), but any non-zero is NaN
-                   // For simplicity, if mantissa slider is > 0 and exponent is max, make it a qNaN.
-                   // A common qNaN is first bit of mantissa set.
-          newSignificandBits = '1' + '0'.repeat(SIGNIFICAND_BITS - 1);
-          // We could also choose to set mantissaFractionValue to 0.5 here if we want slider to snap to that for NaN
+        } else { // NaN (currentMantissaFraction > 0)
+          // Generate significand bits from the actual mantissa fraction for NaN
+          newSignificandBits = mantissaFractionToBits(currentMantissaFraction, SIGNIFICAND_BITS);
         }
       }
 
