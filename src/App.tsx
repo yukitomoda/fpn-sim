@@ -7,6 +7,7 @@ import OutputDisplay from './components/OutputDisplay';
 import ExponentSlider from './components/ExponentSlider';
 import MantissaSlider from './components/MantissaSlider';
 import VisualValueAdjuster from './components/VisualValueAdjuster'; // Added
+import SpecialValueButtons from './components/SpecialValueButtons'; // Added
 import {
   convertDecimalToBits,
   convertBitsToDecimal,
@@ -239,6 +240,11 @@ const App: Component = () => {
                           // This also sets isLastChangeFromSliders = true, which is acceptable
   };
 
+  const handleSpecialValueClick = (value: string) => {
+    // This existing handler already sets the necessary flags for updating bits correctly
+    handleDecimalChange(value);
+  };
+
   return (
     <div class="app-container">
       <h1>IEEE 754 浮動小数点数シミュレータ</h1>
@@ -282,6 +288,7 @@ const App: Component = () => {
         decimalFromBits={decimalFromBits}
         originalInput={displayedOriginalInput}
       />
+      <SpecialValueButtons onSpecialValueClick={handleSpecialValueClick} />
     </div>
   );
 };
