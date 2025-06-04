@@ -135,6 +135,47 @@ const VisualValueAdjuster: Component<VisualValueAdjusterProps> = (props) => {
     isDragging = false;
   };
 
+  const handleTouchEvent = (event: TouchEvent) => {
+    if (!canvasRef || event.touches.length === 0) return;
+    const rect = canvasRef.getBoundingClientRect();
+    const touch = event.touches[0];
+    let touchX = touch.clientX - rect.left;
+    let touchY = touch.clientY - rect.top;
+
+    // Clamp coordinates to canvas bounds
+    touchX = Math.max(0, Math.min(WIDTH, touchX));
+    touchY = Math.max(0, Math.min(HEIGHT, touchY));
+
+    // Convert to newMantissaFraction and newExponent
+    let newMantissaFraction = touchX / WIDTH;
+    // Ensure fraction is < 1.0. If touchX is exactly WIDTH, newMantissaFraction becomes 1.0.
+    if (newMantissaFraction >= 1.0) {
+        newMantissaFraction = Math.nextDown(1.0);
+    }
+
+    const newExponent = Math.round(MAX_STORED_EXPONENT * (1 - touchY / HEIGHT));
+
+    props.onPositionChange(newExponent, newMantissaFraction);
+  };
+
+  // Touch event handlers
+  const onTouchStartHandler = (event: TouchEvent) => {
+    isDragging = true;
+    handleTouchEvent(event);
+    event.preventDefault();
+  };
+
+  const onTouchMoveHandler = (event: TouchEvent) => {
+    if (isDragging) {
+      handleTouchEvent(event);
+    }
+    event.preventDefault();
+  };
+
+  const onTouchEndHandler = () => { // No event argument needed for onTouchEnd
+    isDragging = false;
+  };
+
   onMount(() => {
     draw(); // Initial draw
   });
@@ -154,6 +195,9 @@ const VisualValueAdjuster: Component<VisualValueAdjusterProps> = (props) => {
         onMouseMove={onMouseMove}
         onMouseUp={onMouseUpOrLeave}
         onMouseLeave={onMouseUpOrLeave}
+        onTouchStart={onTouchStartHandler}
+        onTouchMove={onTouchMoveHandler}
+        onTouchEnd={onTouchEndHandler}
         style={{ cursor: 'crosshair', border: '1px solid black' }}
       />
     </div>
