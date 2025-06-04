@@ -123,3 +123,31 @@ export function convertBitsToDecimal(signStr: string, exponentStr: string, signi
     // or explicitly handled for special cases like -0 above.
   };
 }
+
+export function mantissaFractionToBits(fraction: number, bits: number): string {
+  if (fraction < 0 || fraction >= 1) {
+    // console.warn(`Fraction ${fraction} is out of range [0, 1). Clamping.`);
+    fraction = Math.max(0, Math.min(fraction, Math.nextDown(1))); // Clamp to [0, almost 1)
+  }
+  // Math.round can be problematic for perfect halves, but standard for IEEE 754 tie-breaking (round half to even)
+  // is complex to implement here. Standard Math.round (half up) is used.
+  let intValue = Math.round(fraction * Math.pow(2, bits));
+
+  // Ensure intValue does not exceed the max possible value for 'bits' number of bits
+  const maxValue = Math.pow(2, bits) - 1;
+  if (intValue > maxValue) {
+    intValue = maxValue;
+  }
+
+  let binaryString = intValue.toString(2);
+  return binaryString.padStart(bits, '0');
+}
+
+export function bitsToMantissaFraction(bitString: string): number {
+  if (!/^[01]+$/.test(bitString) || bitString.length === 0) {
+    // console.warn(`Invalid bitString: ${bitString}. Returning 0.`);
+    return 0;
+  }
+  const intValue = parseInt(bitString, 2);
+  return intValue / Math.pow(2, bitString.length);
+}
