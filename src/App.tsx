@@ -241,7 +241,7 @@ const App: Component = () => {
 
   return (
     <div class="app-container">
-      <h1>IEEE 754 浮動小数点数シミュレータ (Solid.js Version)</h1>
+      <h1>IEEE 754 浮動小数点数シミュレータ</h1>
       <NumberInput
         value={decimalStringInput}
         onInput={handleDecimalChange}
