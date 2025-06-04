@@ -14,16 +14,30 @@ jobs:
   cleanup:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout gh-pages branch
         uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: gh-pages # Check out to a specific path to avoid conflicts
 
       - name: Remove PR preview directory
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./
-          destination_dir: pr-${{ github.event.number }}
-          remove: true
+        run: |
+          cd gh-pages
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          directory_to_remove="pr-${{ github.event.number }}"
+
+          if [ -d "$directory_to_remove" ]; then
+            git rm -rf "$directory_to_remove"
+            git commit -m "Remove preview for PR #${{ github.event.number }}"
+            git push
+            echo "Successfully removed directory $directory_to_remove and pushed changes."
+          else
+            echo "Directory $directory_to_remove does not exist. No cleanup needed."
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # git push needs token
 
       - name: Comment on PR about cleanup
         uses: actions/github-script@v7
@@ -31,7 +45,7 @@ jobs:
           script: |
             const comment = `## 🧹 Preview Cleanup
             
-            The preview deployment for this PR has been removed.`;
+            The preview deployment for this PR (directory pr-${{ github.event.number }}) should now be removed.`;
             
             await github.rest.issues.createComment({
               owner: context.repo.owner,
