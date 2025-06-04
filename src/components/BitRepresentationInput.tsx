@@ -19,7 +19,7 @@ const BitRepresentationInput: Component<BitRepresentationInputProps> = (props) =
         <div class="bit-group sign-bit">
           <label>符号 (1ビット):</label>
           {/* No scroll container needed for a single bit */}
-          <span class="clickable-bit sign-bit-span" onClick={() => props.onSignBitClick()}>
+          <span class={`clickable-bit sign-bit-span ${props.sign() === '0' ? 'bit-zero' : 'bit-one'}`} onClick={() => props.onSignBitClick()}>
             {props.sign()}
           </span>
         </div>
@@ -27,7 +27,7 @@ const BitRepresentationInput: Component<BitRepresentationInputProps> = (props) =
           <label>指数 ({EXPONENT_BITS}ビット):</label>
           <div class="bits-scroll-container">
             {props.exponent().split('').map((bit, index) => (
-              <span class="clickable-bit exponent-bit-span" onClick={() => props.onExponentBitClick(index)}>
+              <span class={`clickable-bit exponent-bit-span ${bit === '0' ? 'bit-zero' : 'bit-one'}`} onClick={() => props.onExponentBitClick(index)}>
                 {bit}
               </span>
             ))}
@@ -37,7 +37,7 @@ const BitRepresentationInput: Component<BitRepresentationInputProps> = (props) =
           <label>仮数 ({SIGNIFICAND_BITS}ビット):</label>
           <div class="bits-scroll-container">
             {props.significand().split('').map((bit, index) => (
-              <span class="clickable-bit significand-bit-span" onClick={() => props.onSignificandBitClick(index)}>
+              <span class={`clickable-bit significand-bit-span ${bit === '0' ? 'bit-zero' : 'bit-one'}`} onClick={() => props.onSignificandBitClick(index)}>
                 {bit}
               </span>
             ))}
