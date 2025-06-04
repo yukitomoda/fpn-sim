@@ -94,6 +94,26 @@ input[type='text']:focus {
   /* margin-bottom: 4px; */ /* Adjust spacing for slider's own label */
 }
 
+/* New styles for horizontal alignment of slider and bits */
+.slider-and-bits-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center; /* Vertically align slider and bits container */
+  gap: 15px; /* Space between slider and bits container */
+  margin-top: 5px; /* Space below the main label of the bit group */
+}
+
+.slider-and-bits-row .slider-section {
+  flex-shrink: 0; /* Prevent slider from shrinking disproportionately */
+  flex-basis: 220px; /* Base width for the slider section */
+  /* Existing .bit-group .slider-section rules for transparency, no border, etc., will still apply */
+}
+
+.slider-and-bits-row .bits-scroll-container {
+  flex-grow: 1; /* Allow bit container to take remaining space */
+  min-width: 0; /* Essential for scrollable content in flex item */
+}
+
 .bit-group input[type='text'] {
   font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
   letter-spacing: 1.5px;

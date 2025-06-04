@@ -181,8 +181,8 @@ describe('BitRepresentationInput component', () => {
         exponentSlider: mockExponentSlider,
       };
       render(() => <BitRepresentationInput {...propsWithExponentSlider} />);
-      expect(screen.getByText(/指数 \(内部値:/)).toBeTruthy();
-      expect(screen.getByText(exponentValue().toString())).toBeTruthy(); // Check for value rendering
+      // Precise check for the label including the dynamic value
+      expect(screen.getByText(new RegExp(`指数 \\(内部値: ${exponentValue()}\\):`))).toBeTruthy();
     });
 
     it('should render MantissaSlider when mantissaSlider prop is provided', () => {
@@ -191,9 +191,8 @@ describe('BitRepresentationInput component', () => {
         mantissaSlider: mockMantissaSlider,
       };
       render(() => <BitRepresentationInput {...propsWithMantissaSlider} />);
-      expect(screen.getByText(/仮数 \(小数部:/)).toBeTruthy();
-      // Mantissa value is formatted, so check for part of it or use a more robust query
-      expect(screen.getByText(mantissaValue().toFixed(5))).toBeTruthy();
+      // Precise check for the label including the dynamic value
+      expect(screen.getByText(new RegExp(`仮数 \\(小数部: ${mantissaValue().toFixed(5)}\\):`))).toBeTruthy();
     });
 
     it('should render both sliders when both props are provided', () => {
@@ -203,10 +202,8 @@ describe('BitRepresentationInput component', () => {
         mantissaSlider: mockMantissaSlider,
       };
       render(() => <BitRepresentationInput {...propsWithBothSliders} />);
-      expect(screen.getByText(/指数 \(内部値:/)).toBeTruthy();
-      expect(screen.getByText(exponentValue().toString())).toBeTruthy();
-      expect(screen.getByText(/仮数 \(小数部:/)).toBeTruthy();
-      expect(screen.getByText(mantissaValue().toFixed(5))).toBeTruthy();
+      expect(screen.getByText(new RegExp(`指数 \\(内部値: ${exponentValue()}\\):`))).toBeTruthy();
+      expect(screen.getByText(new RegExp(`仮数 \\(小数部: ${mantissaValue().toFixed(5)}\\):`))).toBeTruthy();
     });
 
     it('should not render sliders if props are not provided (already covered by first test, but explicit)', () => {
