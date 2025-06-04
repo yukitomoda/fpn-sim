@@ -12,7 +12,8 @@
   },
   "dependencies": {
     "decimal.js": "^10.5.0",
-    "solid-js": "^1.9.5"
+    "solid-js": "^1.9.5",
+    "solid-styled-components": "^0.28.5"
   },
   "devDependencies": {
     "@solidjs/testing-library": "^0.8.10",
