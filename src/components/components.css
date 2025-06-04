@@ -118,7 +118,7 @@ input[type='text']:focus {
 }
 
 .clickable-bit:hover {
-  background-color: #f0f0f0;
+  /* background-color: #f0f0f0; */ /* Generic hover background removed, handled by specific bit types */
   border-color: #aaa;
 }
 
@@ -128,6 +128,16 @@ input[type='text']:focus {
 
 .bit-one {
   background-color: #a0d3ff;
+}
+
+.bit-zero:hover {
+  background-color: #d0d0d0;
+  /* border-color is inherited from .clickable-bit:hover */
+}
+
+.bit-one:hover {
+  background-color: #8acaff;
+  /* border-color is inherited from .clickable-bit:hover */
 }
 
 /* Specific bit spans can inherit from clickable-bit. Add specific styles if needed. */
