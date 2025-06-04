@@ -100,10 +100,11 @@ const StyledBitsScrollContainer = styled.div`
   min-width: 0;
 `;
 
-const StyledClickableBit = styled.span`
+// Updated StyledClickableBit to accept bitValue prop for conditional styling
+const StyledClickableBit = styled.span<{ bitValue: string }>`
   display: inline-block;
   padding: 4px 0;
-  margin: 0; /* Adjusted from 0 0 to just 0 for simplicity */
+  margin: 0;
   border: 1px solid #ccc;
   border-radius: 2px;
   cursor: pointer;
@@ -114,6 +115,7 @@ const StyledClickableBit = styled.span`
   text-align: center;
   line-height: 1.2;
   transition: background-color 0.2s ease, border-color 0.2s ease;
+  background-color: ${props => (props.bitValue === '0' ? '#e0e0e0' : '#a0d3ff')}; /* Style for bit-zero and bit-one */
 
   &:nth-last-child(4n) {
     margin-left: 0.2em;
@@ -124,8 +126,8 @@ const StyledClickableBit = styled.span`
   }
 
   &:hover {
-    background-color: #f0f0f0;
     border-color: #aaa;
+    background-color: ${props => (props.bitValue === '0' ? '#d0d0d0' : '#8acaff')}; /* Hover for bit-zero and bit-one */
   }
 `;
 
@@ -136,7 +138,7 @@ const BitRepresentationInput: Component<BitRepresentationInputProps> = (props) =
       <StyledBitDisplay>
         <StyledSignBitGroup>
           <label>符号 (1ビット):</label>
-          <StyledClickableBit onClick={() => props.onSignBitClick()}>
+          <StyledClickableBit bitValue={props.sign()} onClick={() => props.onSignBitClick()}>
             {props.sign()}
           </StyledClickableBit>
         </StyledSignBitGroup>
@@ -144,7 +146,7 @@ const BitRepresentationInput: Component<BitRepresentationInputProps> = (props) =
           <label>指数 ({EXPONENT_BITS}ビット):</label>
           <StyledBitsScrollContainer>
             {props.exponent().split('').map((bit, index) => (
-              <StyledClickableBit onClick={() => props.onExponentBitClick(index)}>
+              <StyledClickableBit bitValue={bit} onClick={() => props.onExponentBitClick(index)}>
                 {bit}
               </StyledClickableBit>
             ))}
@@ -154,7 +156,7 @@ const BitRepresentationInput: Component<BitRepresentationInputProps> = (props) =
           <label>仮数 ({SIGNIFICAND_BITS}ビット):</label>
           <StyledBitsScrollContainer>
             {props.significand().split('').map((bit, index) => (
-              <StyledClickableBit onClick={() => props.onSignificandBitClick(index)}>
+              <StyledClickableBit bitValue={bit} onClick={() => props.onSignificandBitClick(index)}>
                 {bit}
               </StyledClickableBit>
             ))}
