@@ -46,6 +46,11 @@ describe('BitRepresentationInput component', () => {
 
     const signBit = document.querySelector('.clickable-bit.sign-bit-span');
     expect(signBit?.textContent).toBe('1');
+    expect(signBit?.classList.contains('bit-one')).toBe(true);
+
+    setSign('0');
+    expect(signBit?.textContent).toBe('0');
+    expect(signBit?.classList.contains('bit-zero')).toBe(true);
   });
 
   it('should call onSignBitClick when sign bit is clicked', () => {
@@ -67,7 +72,9 @@ describe('BitRepresentationInput component', () => {
     const exponentBits = document.querySelectorAll('.clickable-bit.exponent-bit-span');
     expect(exponentBits).toHaveLength(11);
     expect(exponentBits[0].textContent).toBe('1');
+    expect(exponentBits[0].classList.contains('bit-one')).toBe(true);
     expect(exponentBits[1].textContent).toBe('0');
+    expect(exponentBits[1].classList.contains('bit-zero')).toBe(true);
   });
 
   it('should call onExponentBitClick with correct index', () => {
@@ -92,8 +99,11 @@ describe('BitRepresentationInput component', () => {
     const significandBits = document.querySelectorAll('.clickable-bit.significand-bit-span');
     expect(significandBits).toHaveLength(52);
     expect(significandBits[0].textContent).toBe('1');
+    expect(significandBits[0].classList.contains('bit-one')).toBe(true);
     expect(significandBits[1].textContent).toBe('0');
+    expect(significandBits[1].classList.contains('bit-zero')).toBe(true);
     expect(significandBits[2].textContent).toBe('1');
+    expect(significandBits[2].classList.contains('bit-one')).toBe(true);
   });
 
   it('should call onSignificandBitClick with correct index', () => {
@@ -120,14 +130,20 @@ describe('BitRepresentationInput component', () => {
 
     let signBit = document.querySelector('.clickable-bit.sign-bit-span');
     expect(signBit?.textContent).toBe('0');
+    expect(signBit?.classList.contains('bit-zero')).toBe(true);
 
     setSign('1');
+    // Re-query after state change if component re-renders, or ensure reactivity handles class update
     signBit = document.querySelector('.clickable-bit.sign-bit-span');
     expect(signBit?.textContent).toBe('1');
+    expect(signBit?.classList.contains('bit-one')).toBe(true);
 
     setExponent('10000000000');
     const exponentBits = document.querySelectorAll('.clickable-bit.exponent-bit-span');
     expect(exponentBits[0].textContent).toBe('1');
+    expect(exponentBits[0].classList.contains('bit-one')).toBe(true);
+    expect(exponentBits[1].textContent).toBe('0');
+    expect(exponentBits[1].classList.contains('bit-zero')).toBe(true);
   });
 
   it('should handle edge case with all zeros', () => {
@@ -145,8 +161,9 @@ describe('BitRepresentationInput component', () => {
     const significandBits = document.querySelectorAll('.clickable-bit.significand-bit-span');
 
     expect(signBit?.textContent).toBe('0');
-    expect(Array.from(exponentBits).every(bit => bit.textContent === '0')).toBe(true);
-    expect(Array.from(significandBits).every(bit => bit.textContent === '0')).toBe(true);
+    expect(signBit?.classList.contains('bit-zero')).toBe(true);
+    expect(Array.from(exponentBits).every(bit => bit.textContent === '0' && bit.classList.contains('bit-zero'))).toBe(true);
+    expect(Array.from(significandBits).every(bit => bit.textContent === '0' && bit.classList.contains('bit-zero'))).toBe(true);
   });
 
   it('should handle edge case with all ones', () => {
@@ -164,8 +181,9 @@ describe('BitRepresentationInput component', () => {
     const significandBits = document.querySelectorAll('.clickable-bit.significand-bit-span');
 
     expect(signBit?.textContent).toBe('1');
-    expect(Array.from(exponentBits).every(bit => bit.textContent === '1')).toBe(true);
-    expect(Array.from(significandBits).every(bit => bit.textContent === '1')).toBe(true);
+    expect(signBit?.classList.contains('bit-one')).toBe(true);
+    expect(Array.from(exponentBits).every(bit => bit.textContent === '1' && bit.classList.contains('bit-one'))).toBe(true);
+    expect(Array.from(significandBits).every(bit => bit.textContent === '1' && bit.classList.contains('bit-one'))).toBe(true);
   });
 
   // New tests for sliders

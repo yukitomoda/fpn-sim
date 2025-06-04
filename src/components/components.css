@@ -153,8 +153,26 @@ input[type='text']:focus {
 }
 
 .clickable-bit:hover {
-  background-color: #f0f0f0;
+  /* background-color: #f0f0f0; */ /* Generic hover background removed, handled by specific bit types */
   border-color: #aaa;
+}
+
+.bit-zero {
+  background-color: #e0e0e0;
+}
+
+.bit-one {
+  background-color: #a0d3ff;
+}
+
+.bit-zero:hover {
+  background-color: #d0d0d0;
+  /* border-color is inherited from .clickable-bit:hover */
+}
+
+.bit-one:hover {
+  background-color: #8acaff;
+  /* border-color is inherited from .clickable-bit:hover */
 }
 
 /* Specific bit spans can inherit from clickable-bit. Add specific styles if needed. */
@@ -301,3 +319,50 @@ input[type='text']:focus {
   background-color: #ffffff; // Slight distinction from section background
 }
 */
+
+/* Styles for SpecialValueButtons */
+.special-buttons-container {
+  margin-top: 20px;
+  padding: 15px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.special-buttons-container h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: #333;
+  font-size: 1.1em;
+  text-align: center; /* Center the heading */
+}
+
+.buttons-wrapper { /* Style for the added wrapper */
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px; /* Adds space between buttons */
+}
+
+.special-value-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  /* margin: 5px; Remove individual margins if using gap */
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.9em;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.special-value-button:hover {
+  background-color: #0056b3;
+}
+
+.special-value-button:active {
+  background-color: #004085;
+}
