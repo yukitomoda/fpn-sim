@@ -6,12 +6,11 @@ on:
       - main # Or your default branch
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
+  pull-requests: write
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -20,27 +19,19 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22.x' # Specify your Node.js version, ensure it's compatible with Vite/Solid
+          node-version: '22.x'
           cache: 'npm'
 
       - name: Install dependencies
         run: npm ci
 
       - name: Build application
-        run: npm run build # Assumes your build script is 'build' in package.json
+        run: npm run build
 
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3 # Use v3 or newer
-        with:
-          path: ./dist # Path to the directory to upload
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
       - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4 # Use v4 or newer
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          destination_dir: .
+          keep_files: true
