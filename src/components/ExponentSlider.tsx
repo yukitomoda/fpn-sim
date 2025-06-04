@@ -21,7 +21,7 @@ const ExponentSlider: Component<ExponentSliderProps> = (props) => {
 
   return (
     <div class="slider-section">
-      <label for="exponentSlider">指数 (内部値: {props.value()}):</label>
+      <label for="exponentSlider">内部値: {props.value()}</label>
       <input
         type="range"
         id="exponentSlider"

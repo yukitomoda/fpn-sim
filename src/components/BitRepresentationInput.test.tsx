@@ -199,8 +199,8 @@ describe('BitRepresentationInput component', () => {
         exponentSlider: mockExponentSlider,
       };
       render(() => <BitRepresentationInput {...propsWithExponentSlider} />);
-      // Precise check for the label including the dynamic value
-      expect(screen.getByText(new RegExp(`指数 \\(内部値: ${exponentValue()}\\):`))).toBeTruthy();
+      // Precise check for the new simplified label including the dynamic value
+      expect(screen.getByText(new RegExp(`内部値: ${exponentValue()}`))).toBeTruthy();
     });
 
     it('should render MantissaSlider when mantissaSlider prop is provided', () => {
@@ -209,8 +209,8 @@ describe('BitRepresentationInput component', () => {
         mantissaSlider: mockMantissaSlider,
       };
       render(() => <BitRepresentationInput {...propsWithMantissaSlider} />);
-      // Precise check for the label including the dynamic value
-      expect(screen.getByText(new RegExp(`仮数 \\(小数部: ${mantissaValue().toFixed(5)}\\):`))).toBeTruthy();
+      // Precise check for the new simplified label including the dynamic value
+      expect(screen.getByText(new RegExp(`小数部: ${mantissaValue().toFixed(5)}`))).toBeTruthy();
     });
 
     it('should render both sliders when both props are provided', () => {
@@ -220,14 +220,18 @@ describe('BitRepresentationInput component', () => {
         mantissaSlider: mockMantissaSlider,
       };
       render(() => <BitRepresentationInput {...propsWithBothSliders} />);
-      expect(screen.getByText(new RegExp(`指数 \\(内部値: ${exponentValue()}\\):`))).toBeTruthy();
-      expect(screen.getByText(new RegExp(`仮数 \\(小数部: ${mantissaValue().toFixed(5)}\\):`))).toBeTruthy();
+      expect(screen.getByText(new RegExp(`内部値: ${exponentValue()}`))).toBeTruthy();
+      expect(screen.getByText(new RegExp(`小数部: ${mantissaValue().toFixed(5)}`))).toBeTruthy();
     });
 
     it('should not render sliders if props are not provided (already covered by first test, but explicit)', () => {
       render(() => <BitRepresentationInput {...mockBasicProps} />);
+      // Ensure old prefixed labels are not present
       expect(screen.queryByText(/指数 \(内部値:/)).toBeNull();
       expect(screen.queryByText(/仮数 \(小数部:/)).toBeNull();
+      // Ensure new simplified labels (without props that would make them render) are not present
+      expect(screen.queryByText(/内部値:/)).toBeNull();
+      expect(screen.queryByText(/小数部:/)).toBeNull();
     });
   });
 });
