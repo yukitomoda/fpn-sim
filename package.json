@@ -11,6 +11,7 @@
     "test:ui": "vitest --ui"
   },
   "dependencies": {
+    "big-rational-ts": "^1.0.6",
     "decimal.js": "^10.5.0",
     "solid-js": "^1.9.5"
   },

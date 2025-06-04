@@ -18,6 +18,10 @@ import {
 import type { Ieee754Bits, ExactDecimal } from './utils/ieee754';
 import './components/components.css';
 
+// +++ Add imports for BigRational and toBigRational +++
+import { BigRational } from 'big-rational-ts';
+import { toBigRational } from './utils/rationalConverter';
+
 const App: Component = () => {
   const [decimalStringInput, setDecimalStringInput] = createSignal<string>('3.14159');
   const [signBitString, setSignBitString] = createSignal<string>('0');
@@ -34,6 +38,11 @@ const App: Component = () => {
   // True if the last change was from the slider input fields
   const [isLastChangeFromSliders, setIsLastChangeFromSliders] =
     createSignal<boolean>(false);
+
+  // +++ Add new state signals for rational values +++
+  const [exactRationalValue, setExactRationalValue] = createSignal<BigRational | null>(null);
+  const [floatApproximationAsRational, setFloatApproximationAsRational] = createSignal<BigRational | null>(null);
+  const [rationalConversionError, setRationalConversionError] = createSignal<string | null>(null);
 
   // Helper function to toggle a bit in a string
   const toggleBitAtIndex = (bitString: string, index: number): string => {
@@ -91,6 +100,27 @@ const App: Component = () => {
     setIsLastChangeFromSliders(false);
     setDecimalStringInput(value);
   };
+
+  // +++ Effect to update exactRationalValue from decimalStringInput +++
+  createEffect(() => {
+    const currentInput = decimalStringInput();
+    if (currentInput.trim() === '') {
+      setExactRationalValue(null);
+      // Keep previous error or set a new one like:
+      // setRationalConversionError("Input is empty. Please enter a number.");
+      // For now, let's clear it if input is empty, or let toBigRational handle it
+      setRationalConversionError(null);
+      return;
+    }
+    try {
+      const rational = toBigRational(currentInput);
+      setExactRationalValue(rational);
+      setRationalConversionError(null);
+    } catch (e: any) {
+      setExactRationalValue(null);
+      setRationalConversionError(e.message || 'Invalid input for rational conversion.');
+    }
+  });
 
   const handleSignBitClick = () => {
     setIsLastChangeFromDecimal(false);
@@ -155,6 +185,31 @@ const App: Component = () => {
     if (s === '' && e === '' && m === '') return '';
     if (isLastChangeFromSliders()) return 'スライダー調整中...'; // Sliders are active
     return 'ビット入力が無効または不完全';
+  });
+
+  // +++ Effect to update floatApproximationAsRational from decimalFromBits +++
+  createEffect(() => {
+    const bitsResult = decimalFromBits(); // This is reactive to decimalFromBits memo
+    if (typeof bitsResult === 'object' && bitsResult !== null && typeof bitsResult.value === 'number' && isFinite(bitsResult.value)) {
+      try {
+        // Use bitsResult.value (the number) for conversion, as toBigRational expects number or string of number
+        const rational = toBigRational(bitsResult.value);
+        setFloatApproximationAsRational(rational);
+      } catch (e: any) {
+        // This might happen if bitsResult.value is a number that toBigRational somehow fails on,
+        // or if toBigRational has an issue with the specific string representation of that number.
+        console.error("Error converting float approximation to rational:", e);
+        setFloatApproximationAsRational(null);
+      }
+    } else if (typeof bitsResult === 'object' && bitsResult !== null && (bitsResult.originalString === "NaN" || bitsResult.originalString === "Infinity" || bitsResult.originalString === "-Infinity")) {
+      // Handle NaN, Infinity, -Infinity if toBigRational is enhanced to support them
+      // For now, toBigRational will throw for these strings. So set to null.
+      setFloatApproximationAsRational(null);
+    }
+    else {
+      // If bitsResult is an error string, or some other non-convertible state
+      setFloatApproximationAsRational(null);
+    }
   });
 
   // Function to handle changes from sliders
@@ -281,6 +336,10 @@ const App: Component = () => {
       <OutputDisplay
         decimalFromBits={decimalFromBits}
         originalInput={displayedOriginalInput}
+        // +++ Pass new rational value signals +++
+        exactRationalValue={exactRationalValue}
+        floatApproximationAsRational={floatApproximationAsRational}
+        rationalConversionError={rationalConversionError}
       />
     </div>
   );
