@@ -40,7 +40,7 @@ const BitRepresentationInput: Component<BitRepresentationInputProps> = (props) =
           <label>指数 ({EXPONENT_BITS}ビット):</label>
           <div class="bits-scroll-container">
             {() => {
-              const exponentChunks = formatBitsWithLineBreaks(props.exponent(), 4);
+              const exponentChunks = formatBitsWithLineBreaks(props.exponent(), 8); // Changed chunk size to 8
               let originalBitIndex = 0;
               return (
                 <For each={exponentChunks}>
@@ -71,7 +71,7 @@ const BitRepresentationInput: Component<BitRepresentationInputProps> = (props) =
           <label>仮数 ({SIGNIFICAND_BITS}ビット):</label>
           <div class="bits-scroll-container">
             {() => {
-              const significandChunks = formatBitsWithLineBreaks(props.significand(), 4);
+              const significandChunks = formatBitsWithLineBreaks(props.significand(), 8); // Changed chunk size to 8
               let originalBitIndex = 0;
               return (
                 <For each={significandChunks}>
@@ -103,19 +103,3 @@ const BitRepresentationInput: Component<BitRepresentationInputProps> = (props) =
   );
 };
 export default BitRepresentationInput;
-
-// Add some basic styling for bit-chunk for line breaks
-// This should ideally be in a CSS file, but for simplicity here.
-if (typeof window !== 'undefined') {
-  const style = document.createElement('style');
-  style.innerHTML = `
-    .bit-chunk {
-      display: block; /* Each chunk takes a new line */
-      margin-bottom: 2px; /* Optional: add some space between lines */
-    }
-    .bit-chunk span {
-      margin-right: 1px; /* Adjust spacing between bits if necessary */
-    }
-  `;
-  document.head.appendChild(style);
-}
