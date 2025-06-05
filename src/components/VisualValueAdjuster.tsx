@@ -1,6 +1,21 @@
 // src/components/VisualValueAdjuster.tsx
 import type { Component, Accessor } from 'solid-js';
 import { createEffect, onMount } from 'solid-js';
+
+// Debounce utility function
+function debounce<F extends (...args: any[]) => any>(func: F, waitFor: number) {
+  let timeoutId: number | undefined = undefined;
+  return (...args: Parameters<F>): Promise<ReturnType<F>> =>
+    new Promise(resolve => {
+      if (timeoutId !== undefined) {
+        clearTimeout(timeoutId);
+      }
+      timeoutId = window.setTimeout(() => {
+        timeoutId = undefined; // Clear timeoutId before calling func
+        resolve(func(...args));
+      }, waitFor);
+    });
+}
 import { EXPONENT_BITS } from '../utils/ieee754'; // For MAX_STORED_EXPONENT
 
 interface VisualValueAdjusterProps {
@@ -182,21 +197,27 @@ const VisualValueAdjuster: Component<VisualValueAdjusterProps> = (props) => {
     if (!canvasRef || !canvasRef.parentElement) return;
 
     const parentEl = canvasRef.parentElement;
+    const DEBOUNCE_DELAY = 50; // ms
+
+    const debouncedResizeHandler = debounce((newWidth: number) => {
+      if (canvasRef) {
+        canvasRef.width = newWidth;
+        canvasRef.height = FIXED_HEIGHT;
+        draw();
+      }
+    }, DEBOUNCE_DELAY);
 
     resizeObserver = new ResizeObserver(entries => {
       for (const entry of entries) {
-        if (entry.target === parentEl && canvasRef) {
-          const newWidth = entry.contentRect.width;
-          canvasRef.width = newWidth;
-          canvasRef.height = FIXED_HEIGHT;
-          draw();
+        if (entry.target === parentEl) {
+          debouncedResizeHandler(entry.contentRect.width);
         }
       }
     });
 
     resizeObserver.observe(parentEl);
 
-    // Initial sizing based on parent
+    // Initial sizing based on parent (no need to debounce this)
     canvasRef.width = parentEl.clientWidth;
     canvasRef.height = FIXED_HEIGHT;
     draw(); // Initial draw
@@ -206,6 +227,8 @@ const VisualValueAdjuster: Component<VisualValueAdjusterProps> = (props) => {
       if (resizeObserver) {
         resizeObserver.disconnect();
       }
+      // Optional: If debouncedResizeHandler had a .cancel() method, call it here.
+      // For this simple debounce, pending timeouts are cleared on new calls or just don't run on unmount.
     };
   });
 
