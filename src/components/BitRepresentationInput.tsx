@@ -1,6 +1,19 @@
 // src/components/BitRepresentationInput.tsx
 import type { Component, Accessor } from 'solid-js';
+import { For } from 'solid-js'; // Import For for list rendering
 import { EXPONENT_BITS, SIGNIFICAND_BITS } from '../utils/ieee754';
+
+// Helper function to format bits with line breaks
+const formatBitsWithLineBreaks = (bitString: string, chunkSize: number): string[] => {
+  if (!bitString) return [];
+  const reversedBits = bitString.split('').reverse().join('');
+  const chunks: string[] = [];
+  for (let i = 0; i < reversedBits.length; i += chunkSize) {
+    chunks.push(reversedBits.slice(i, i + chunkSize));
+  }
+  // Reverse each chunk and then the array of chunks to get the original MSB-first order for display
+  return chunks.map(chunk => chunk.split('').reverse().join('')).reverse();
+};
 
 interface BitRepresentationInputProps {
   sign: Accessor<string>;
@@ -26,21 +39,63 @@ const BitRepresentationInput: Component<BitRepresentationInputProps> = (props) =
         <div class="bit-group exponent-bits">
           <label>指数 ({EXPONENT_BITS}ビット):</label>
           <div class="bits-scroll-container">
-            {props.exponent().split('').map((bit, index) => (
-              <span class={`clickable-bit exponent-bit-span ${bit === '0' ? 'bit-zero' : 'bit-one'}`} onClick={() => props.onExponentBitClick(index)}>
-                {bit}
-              </span>
-            ))}
+            {() => {
+              const exponentChunks = formatBitsWithLineBreaks(props.exponent(), 8); // Changed chunk size to 8
+              let originalBitIndex = 0;
+              return (
+                <For each={exponentChunks}>
+                  {(chunk, _chunkIndex) => (
+                    <div class="bit-chunk">
+                      <For each={chunk.split('')}>
+                        {(bit, bitInChunkIndex) => {
+                          const currentIndex = originalBitIndex + bitInChunkIndex();
+                          return (
+                            <span
+                              class={`clickable-bit exponent-bit-span ${bit === '0' ? 'bit-zero' : 'bit-one'}`}
+                              onClick={() => props.onExponentBitClick(currentIndex)}
+                            >
+                              {bit}
+                            </span>
+                          );
+                        }}
+                      </For>
+                      {originalBitIndex += chunk.length}
+                    </div>
+                  )}
+                </For>
+              );
+            }}
           </div>
         </div>
         <div class="bit-group significand-bits">
           <label>仮数 ({SIGNIFICAND_BITS}ビット):</label>
           <div class="bits-scroll-container">
-            {props.significand().split('').map((bit, index) => (
-              <span class={`clickable-bit significand-bit-span ${bit === '0' ? 'bit-zero' : 'bit-one'}`} onClick={() => props.onSignificandBitClick(index)}>
-                {bit}
-              </span>
-            ))}
+            {() => {
+              const significandChunks = formatBitsWithLineBreaks(props.significand(), 8); // Changed chunk size to 8
+              let originalBitIndex = 0;
+              return (
+                <For each={significandChunks}>
+                  {(chunk, _chunkIndex) => (
+                    <div class="bit-chunk">
+                      <For each={chunk.split('')}>
+                        {(bit, bitInChunkIndex) => {
+                          const currentIndex = originalBitIndex + bitInChunkIndex();
+                          return (
+                            <span
+                              class={`clickable-bit significand-bit-span ${bit === '0' ? 'bit-zero' : 'bit-one'}`}
+                              onClick={() => props.onSignificandBitClick(currentIndex)}
+                            >
+                              {bit}
+                            </span>
+                          );
+                        }}
+                      </For>
+                      {originalBitIndex += chunk.length}
+                    </div>
+                  )}
+                </For>
+              );
+            }}
           </div>
         </div>
       </div>

@@ -106,8 +106,10 @@ input[type='text']:focus {
   /* Ensure text is vertically centered */
   transition: background-color 0.2s ease, border-color 0.2s ease;
   /* Smooth hover */
+  margin-right: 2px; /* Consistent spacing between bits */
 }
 
+/* Removed nth-last-child rules that created uneven spacing with chunks
 .clickable-bit:nth-last-child(4n) {
   margin-left: 0.2em;
 }
@@ -115,6 +117,7 @@ input[type='text']:focus {
 .clickable-bit:nth-last-child(8n) {
   margin-left: 0.5em;
 }
+*/
 
 .clickable-bit:hover {
   /* background-color: #f0f0f0; */ /* Generic hover background removed, handled by specific bit types */
@@ -148,10 +151,9 @@ input[type='text']:focus {
 
 /* Container for scrollable bits within exponent and significand groups */
 .bits-scroll-container {
-  white-space: nowrap;
-  overflow-x: auto;
-  padding-bottom: 8px;
-  /* Space for scrollbar not to overlap content visually */
+  white-space: normal; /* Allow wrapping */
+  /* overflow-x: auto; Removed to prevent horizontal scrolling */
+  padding-bottom: 8px; /* Keep for some spacing at the bottom */
   /* The following are important for elements inside a flex item (.bit-group) */
   /* to behave correctly with overflow and potential shrinking. */
   min-width: 0;
@@ -329,4 +331,16 @@ input[type='text']:focus {
 
 .special-value-button:active {
   background-color: #004085;
+}
+
+/* Styles for wrapped bit display */
+.bit-chunk {
+  display: block; /* Each chunk takes a new line */
+  margin-bottom: 4px; /* Space between lines of bits */
+  /* line-height: normal; Ensure default line height doesn't add too much space if bits are small */
+}
+
+.bit-chunk span.clickable-bit {
+  /* Adjust spacing for bits within a chunk if needed, default clickable-bit margins are 0 0 */
+  /* margin-right: 1px; /* Example if space is needed, but clickable-bit has its own logic */
 }
