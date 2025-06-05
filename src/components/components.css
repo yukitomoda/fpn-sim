@@ -237,6 +237,7 @@ input[type='text']:focus {
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 4px;
+  transition: none; /* Add this line */
   /* display: flex; */ /* Using this might require child elements to be adjusted */
   /* flex-direction: column; */
   /* align-items: center; */ /* Center canvas if it's narrower than section */
@@ -249,9 +250,12 @@ input[type='text']:focus {
 }
 
 .visual-adjuster-section canvas {
-  border: 1px solid black; /* Already in component, but can be centralized here */
-  cursor: crosshair;     /* Already in component */
-  /* margin: 0 auto; */ /* If centered alignment is desired */
+  width: 100%;
+  display: block;
+  border: 1px solid black; /* Consistent with component style */
+  cursor: crosshair;     /* Consistent with component style */
+  touch-action: none;    /* Ensure touch behavior is consistent */
+  /* margin: 0 auto; */ /* Centering might not be needed if width is 100% */
 }
 
 .interactive-controls-section {
@@ -264,6 +268,7 @@ input[type='text']:focus {
   border: 1px solid #dcdcdc; /* Added border for the section */
   border-radius: 8px; /* Added border-radius for the section */
   background-color: #f9f9f9; /* Consistent background */
+  transition: none; /* Add this line */
 }
 
 .sliders-and-bits-group {

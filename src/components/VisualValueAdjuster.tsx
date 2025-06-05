@@ -1,6 +1,21 @@
 // src/components/VisualValueAdjuster.tsx
 import type { Component, Accessor } from 'solid-js';
 import { createEffect, onMount } from 'solid-js';
+
+// Debounce utility function
+function debounce<F extends (...args: any[]) => any>(func: F, waitFor: number) {
+  let timeoutId: number | undefined = undefined;
+  return (...args: Parameters<F>): Promise<ReturnType<F>> =>
+    new Promise(resolve => {
+      if (timeoutId !== undefined) {
+        clearTimeout(timeoutId);
+      }
+      timeoutId = window.setTimeout(() => {
+        timeoutId = undefined; // Clear timeoutId before calling func
+        resolve(func(...args));
+      }, waitFor);
+    });
+}
 import { EXPONENT_BITS } from '../utils/ieee754'; // For MAX_STORED_EXPONENT
 
 interface VisualValueAdjusterProps {
@@ -9,8 +24,7 @@ interface VisualValueAdjusterProps {
   onPositionChange: (exponent: number, fraction: number) => void;
 }
 
-const WIDTH = 450;
-const HEIGHT = 200;
+const FIXED_HEIGHT = 200;
 const POINT_RADIUS = 5;
 const LABEL_OFFSET = 20; // For axis labels
 
@@ -18,6 +32,7 @@ const VisualValueAdjuster: Component<VisualValueAdjusterProps> = (props) => {
   let canvasRef: HTMLCanvasElement | undefined;
   let isDragging = false;
   const MAX_STORED_EXPONENT = (1 << EXPONENT_BITS) - 1; // 2047
+  let resizeObserver: ResizeObserver | null = null;
 
   const getCanvasContext = (): CanvasRenderingContext2D | null => {
     return canvasRef ? canvasRef.getContext('2d') : null;
@@ -25,53 +40,54 @@ const VisualValueAdjuster: Component<VisualValueAdjusterProps> = (props) => {
 
   const draw = () => {
     const ctx = getCanvasContext();
-    if (!ctx) return;
+    if (!ctx || !canvasRef) return;
 
     // Clear canvas
-    ctx.clearRect(0, 0, WIDTH, HEIGHT);
+    ctx.clearRect(0, 0, canvasRef.width, FIXED_HEIGHT);
 
     // Define regions based on exponent value
-    const denormalizedZeroHeight = HEIGHT / (MAX_STORED_EXPONENT + 1); // Height for exp = 0
-    const specialHeight = HEIGHT / (MAX_STORED_EXPONENT + 1);       // Height for exp = MAX_STORED_EXPONENT
+    const denormalizedZeroHeight = FIXED_HEIGHT / (MAX_STORED_EXPONENT + 1); // Height for exp = 0
+    const specialHeight = FIXED_HEIGHT / (MAX_STORED_EXPONENT + 1);       // Height for exp = MAX_STORED_EXPONENT
 
     // Draw background for Zero/Denormalized region (exponent === 0)
     ctx.fillStyle = 'rgba(255, 255, 224, 0.7)'; // Light yellow
-    ctx.fillRect(0, HEIGHT - denormalizedZeroHeight, WIDTH, denormalizedZeroHeight);
+    ctx.fillRect(0, FIXED_HEIGHT - denormalizedZeroHeight, canvasRef.width, denormalizedZeroHeight);
 
     // Draw background for Infinity/NaN region (exponent === MAX_STORED_EXPONENT)
     ctx.fillStyle = 'rgba(255, 224, 224, 0.7)'; // Light red
-    ctx.fillRect(0, 0, WIDTH, specialHeight);
+    ctx.fillRect(0, 0, canvasRef.width, specialHeight);
 
     // Draw background for Normal numbers region
     ctx.fillStyle = 'rgba(224, 255, 224, 0.7)'; // Light green
-    ctx.fillRect(0, specialHeight, WIDTH, HEIGHT - specialHeight - denormalizedZeroHeight);
+    ctx.fillRect(0, specialHeight, canvasRef.width, FIXED_HEIGHT - specialHeight - denormalizedZeroHeight);
 
     // Draw Grid lines (optional, for better visual guidance)
     ctx.strokeStyle = '#ddd';
+    if (!canvasRef) return;
     ctx.lineWidth = 0.5;
     // Y-axis grid lines (for exponent)
     for (let i = 0; i <= MAX_STORED_EXPONENT; i += Math.floor(MAX_STORED_EXPONENT/10)) {
-        const y = HEIGHT - (i / MAX_STORED_EXPONENT) * HEIGHT;
+        const y = FIXED_HEIGHT - (i / MAX_STORED_EXPONENT) * FIXED_HEIGHT;
         ctx.beginPath();
         ctx.moveTo(0, y);
-        ctx.lineTo(WIDTH, y);
+        ctx.lineTo(canvasRef.width, y);
         ctx.stroke();
     }
     // X-axis grid lines (for mantissa)
     for (let i = 0; i <= 10; i++) {
-        const x = (i/10) * WIDTH;
+        const xPos = (i/10) * canvasRef.width;
         ctx.beginPath();
-        ctx.moveTo(x,0);
-        ctx.lineTo(x, HEIGHT);
+        ctx.moveTo(xPos,0);
+        ctx.lineTo(xPos, FIXED_HEIGHT);
         ctx.stroke();
     }
 
 
     // Calculate point position
-    // X: mantissaFraction (0 to <1) maps to 0 to WIDTH
-    const x = props.mantissaFraction() * WIDTH;
-    // Y: storedExponent (0 to MAX_STORED_EXPONENT) maps to HEIGHT (for 0) to 0 (for MAX)
-    const y = HEIGHT - (props.storedExponent() / MAX_STORED_EXPONENT) * HEIGHT;
+    // X: mantissaFraction (0 to <1) maps to 0 to canvasRef.width
+    const x = props.mantissaFraction() * canvasRef.width;
+    // Y: storedExponent (0 to MAX_STORED_EXPONENT) maps to FIXED_HEIGHT (for 0) to 0 (for MAX)
+    const y = FIXED_HEIGHT - (props.storedExponent() / MAX_STORED_EXPONENT) * FIXED_HEIGHT;
 
     // Draw the point
     ctx.beginPath();
@@ -84,16 +100,17 @@ const VisualValueAdjuster: Component<VisualValueAdjusterProps> = (props) => {
 
     // Draw axis labels
     ctx.fillStyle = '#333';
+    if (!canvasRef) return;
     ctx.font = '10px Arial';
     // Y-axis labels
     ctx.textAlign = 'left'; // Adjusted alignment for potentially longer Japanese text
-    ctx.fillText('0', 5, HEIGHT - 5); // Adjusted position
+    ctx.fillText('0', 5, FIXED_HEIGHT - 5); // Adjusted position
     ctx.fillText(`最大指数 (${MAX_STORED_EXPONENT})`, 5, 15); // Adjusted position & text
     // X-axis labels
     ctx.textAlign = 'left';
-    ctx.fillText('0.0', 5, HEIGHT - LABEL_OFFSET + 10 ); // Adjusted for consistency
+    ctx.fillText('0.0', 5, FIXED_HEIGHT - LABEL_OFFSET + 10 ); // Adjusted for consistency
     ctx.textAlign = 'right';
-    ctx.fillText('ほぼ1.0', WIDTH - 5, HEIGHT - LABEL_OFFSET + 10); // Adjusted position & text
+    ctx.fillText('ほぼ1.0', canvasRef.width - 5, FIXED_HEIGHT - LABEL_OFFSET + 10); // Adjusted position & text
   };
 
   const handleMouseEvent = (event: MouseEvent) => {
@@ -103,19 +120,19 @@ const VisualValueAdjuster: Component<VisualValueAdjusterProps> = (props) => {
     let mouseY = event.clientY - rect.top;
 
     // Clamp coordinates to canvas bounds
-    mouseX = Math.max(0, Math.min(WIDTH, mouseX));
-    mouseY = Math.max(0, Math.min(HEIGHT, mouseY));
+    mouseX = Math.max(0, Math.min(canvasRef.width, mouseX));
+    mouseY = Math.max(0, Math.min(FIXED_HEIGHT, mouseY));
 
     // Convert to newMantissaFraction and newExponent
-    let newMantissaFraction = mouseX / WIDTH;
-    // Ensure fraction is < 1.0. If mouseX is exactly WIDTH, newMantissaFraction becomes 1.0.
+    let newMantissaFraction = mouseX / canvasRef.width;
+    // Ensure fraction is < 1.0. If mouseX is exactly canvasRef.width, newMantissaFraction becomes 1.0.
     // (2**SIGNIFICAND_BITS -1) / 2**SIGNIFICAND_BITS is the largest fraction less than 1.
     // For simplicity, using Math.nextDown(1.0) or a slightly smaller hardcoded value.
     if (newMantissaFraction >= 1.0) {
         newMantissaFraction = Math.nextDown(1.0);
     }
 
-    const newExponent = Math.round(MAX_STORED_EXPONENT * (1 - mouseY / HEIGHT));
+    const newExponent = Math.round(MAX_STORED_EXPONENT * (1 - mouseY / FIXED_HEIGHT));
 
     props.onPositionChange(newExponent, newMantissaFraction);
   };
@@ -143,17 +160,17 @@ const VisualValueAdjuster: Component<VisualValueAdjusterProps> = (props) => {
     let touchY = touch.clientY - rect.top;
 
     // Clamp coordinates to canvas bounds
-    touchX = Math.max(0, Math.min(WIDTH, touchX));
-    touchY = Math.max(0, Math.min(HEIGHT, touchY));
+    touchX = Math.max(0, Math.min(canvasRef.width, touchX));
+    touchY = Math.max(0, Math.min(FIXED_HEIGHT, touchY));
 
     // Convert to newMantissaFraction and newExponent
-    let newMantissaFraction = touchX / WIDTH;
-    // Ensure fraction is < 1.0. If touchX is exactly WIDTH, newMantissaFraction becomes 1.0.
+    let newMantissaFraction = touchX / canvasRef.width;
+    // Ensure fraction is < 1.0. If touchX is exactly canvasRef.width, newMantissaFraction becomes 1.0.
     if (newMantissaFraction >= 1.0) {
         newMantissaFraction = Math.nextDown(1.0);
     }
 
-    const newExponent = Math.round(MAX_STORED_EXPONENT * (1 - touchY / HEIGHT));
+    const newExponent = Math.round(MAX_STORED_EXPONENT * (1 - touchY / FIXED_HEIGHT));
 
     props.onPositionChange(newExponent, newMantissaFraction);
   };
@@ -177,7 +194,42 @@ const VisualValueAdjuster: Component<VisualValueAdjusterProps> = (props) => {
   };
 
   onMount(() => {
+    if (!canvasRef || !canvasRef.parentElement) return;
+
+    const parentEl = canvasRef.parentElement;
+    const DEBOUNCE_DELAY = 50; // ms
+
+    const debouncedResizeHandler = debounce((newWidth: number) => {
+      if (canvasRef) {
+        canvasRef.width = newWidth;
+        canvasRef.height = FIXED_HEIGHT;
+        draw();
+      }
+    }, DEBOUNCE_DELAY);
+
+    resizeObserver = new ResizeObserver(entries => {
+      for (const entry of entries) {
+        if (entry.target === parentEl) {
+          debouncedResizeHandler(entry.contentRect.width);
+        }
+      }
+    });
+
+    resizeObserver.observe(parentEl);
+
+    // Initial sizing based on parent (no need to debounce this)
+    canvasRef.width = parentEl.clientWidth;
+    canvasRef.height = FIXED_HEIGHT;
     draw(); // Initial draw
+
+    // Cleanup observer on component unmount
+    return () => {
+      if (resizeObserver) {
+        resizeObserver.disconnect();
+      }
+      // Optional: If debouncedResizeHandler had a .cancel() method, call it here.
+      // For this simple debounce, pending timeouts are cleared on new calls or just don't run on unmount.
+    };
   });
 
   // Re-draw when props change
@@ -189,8 +241,6 @@ const VisualValueAdjuster: Component<VisualValueAdjusterProps> = (props) => {
       <canvas
         id="visualAdjusterCanvas"
         ref={canvasRef}
-        width={WIDTH}
-        height={HEIGHT}
         onMouseDown={onMouseDown}
         onMouseMove={onMouseMove}
         onMouseUp={onMouseUpOrLeave}
@@ -198,7 +248,7 @@ const VisualValueAdjuster: Component<VisualValueAdjusterProps> = (props) => {
         onTouchStart={onTouchStartHandler}
         onTouchMove={onTouchMoveHandler}
         onTouchEnd={onTouchEndHandler}
-        style={{ cursor: 'crosshair', border: '1px solid black' }}
+        style={{ cursor: 'crosshair', border: '1px solid black', touchAction: 'none' }} // Added touchAction: 'none' to prevent scrolling on touch
       />
     </div>
   );

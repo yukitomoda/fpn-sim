@@ -256,7 +256,7 @@ const App: Component = () => {
       {/* Interactive Controls Section */}
       <div class="interactive-controls-section">
         {/* Visual Adjuster might take up a certain portion of width */}
-        <div style="flex-basis: 320px; /* Adjust as needed based on VisualValueAdjuster width */">
+        <div>
           <VisualValueAdjuster
             storedExponent={storedExponentValue}
             mantissaFraction={mantissaFractionValue}
