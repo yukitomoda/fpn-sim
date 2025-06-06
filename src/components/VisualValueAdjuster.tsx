@@ -17,7 +17,6 @@ const VisualValueAdjuster: Component<VisualValueAdjusterProps> = (props) => {
   let canvasRef: HTMLCanvasElement | undefined;
   let containerRef: HTMLDivElement | undefined;
   let isDragging = false;
-  let width = 450; // 初期値、実際はonMountで上書き
   const MAX_STORED_EXPONENT = (1 << EXPONENT_BITS) - 1; // 2047
 
   const getCanvasContext = (): CanvasRenderingContext2D | null => {
@@ -27,7 +26,6 @@ const VisualValueAdjuster: Component<VisualValueAdjusterProps> = (props) => {
   const updateCanvasSize = () => {
     if (containerRef && canvasRef) {
       const newWidth = containerRef.clientWidth;
-      width = newWidth;
       canvasRef.width = newWidth;
       canvasRef.style.width = '100%';
       draw();
@@ -111,8 +109,11 @@ const VisualValueAdjuster: Component<VisualValueAdjusterProps> = (props) => {
   const handleMouseEvent = (event: MouseEvent) => {
     if (!canvasRef) return;
     const rect = canvasRef.getBoundingClientRect();
-    let mouseX = event.clientX - rect.left;
-    let mouseY = event.clientY - rect.top;
+    // 補正: CSS幅→canvasピクセル幅
+    const scaleX = canvasRef.width / rect.width;
+    const scaleY = canvasRef.height / rect.height;
+    let mouseX = (event.clientX - rect.left) * scaleX;
+    let mouseY = (event.clientY - rect.top) * scaleY;
     const WIDTH = canvasRef.width;
 
     // Clamp coordinates to canvas bounds
@@ -152,8 +153,11 @@ const VisualValueAdjuster: Component<VisualValueAdjusterProps> = (props) => {
     if (!canvasRef || event.touches.length === 0) return;
     const rect = canvasRef.getBoundingClientRect();
     const touch = event.touches[0];
-    let touchX = touch.clientX - rect.left;
-    let touchY = touch.clientY - rect.top;
+    // 補正: CSS幅→canvasピクセル幅
+    const scaleX = canvasRef.width / rect.width;
+    const scaleY = canvasRef.height / rect.height;
+    let touchX = (touch.clientX - rect.left) * scaleX;
+    let touchY = (touch.clientY - rect.top) * scaleY;
     const WIDTH = canvasRef.width;
 
     // Clamp coordinates to canvas bounds
