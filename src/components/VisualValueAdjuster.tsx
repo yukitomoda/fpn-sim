@@ -9,23 +9,35 @@ interface VisualValueAdjusterProps {
   onPositionChange: (exponent: number, fraction: number) => void;
 }
 
-const WIDTH = 450;
 const HEIGHT = 200;
 const POINT_RADIUS = 5;
 const LABEL_OFFSET = 20; // For axis labels
 
 const VisualValueAdjuster: Component<VisualValueAdjusterProps> = (props) => {
   let canvasRef: HTMLCanvasElement | undefined;
+  let containerRef: HTMLDivElement | undefined;
   let isDragging = false;
+  let width = 450; // 初期値、実際はonMountで上書き
   const MAX_STORED_EXPONENT = (1 << EXPONENT_BITS) - 1; // 2047
 
   const getCanvasContext = (): CanvasRenderingContext2D | null => {
     return canvasRef ? canvasRef.getContext('2d') : null;
   };
 
+  const updateCanvasSize = () => {
+    if (containerRef && canvasRef) {
+      const newWidth = containerRef.clientWidth;
+      width = newWidth;
+      canvasRef.width = newWidth;
+      canvasRef.style.width = '100%';
+      draw();
+    }
+  };
+
   const draw = () => {
     const ctx = getCanvasContext();
-    if (!ctx) return;
+    if (!ctx || !canvasRef) return;
+    const WIDTH = canvasRef.width;
 
     // Clear canvas
     ctx.clearRect(0, 0, WIDTH, HEIGHT);
@@ -50,20 +62,20 @@ const VisualValueAdjuster: Component<VisualValueAdjusterProps> = (props) => {
     ctx.strokeStyle = '#ddd';
     ctx.lineWidth = 0.5;
     // Y-axis grid lines (for exponent)
-    for (let i = 0; i <= MAX_STORED_EXPONENT; i += Math.floor(MAX_STORED_EXPONENT/10)) {
-        const y = HEIGHT - (i / MAX_STORED_EXPONENT) * HEIGHT;
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(WIDTH, y);
-        ctx.stroke();
+    for (let i = 0; i <= MAX_STORED_EXPONENT; i += Math.floor(MAX_STORED_EXPONENT / 10)) {
+      const y = HEIGHT - (i / MAX_STORED_EXPONENT) * HEIGHT;
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(WIDTH, y);
+      ctx.stroke();
     }
     // X-axis grid lines (for mantissa)
     for (let i = 0; i <= 10; i++) {
-        const x = (i/10) * WIDTH;
-        ctx.beginPath();
-        ctx.moveTo(x,0);
-        ctx.lineTo(x, HEIGHT);
-        ctx.stroke();
+      const x = (i / 10) * WIDTH;
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, HEIGHT);
+      ctx.stroke();
     }
 
 
@@ -91,7 +103,7 @@ const VisualValueAdjuster: Component<VisualValueAdjusterProps> = (props) => {
     ctx.fillText(`最大指数 (${MAX_STORED_EXPONENT})`, 5, 15); // Adjusted position & text
     // X-axis labels
     ctx.textAlign = 'left';
-    ctx.fillText('0.0', 5, HEIGHT - LABEL_OFFSET + 10 ); // Adjusted for consistency
+    ctx.fillText('0.0', 5, HEIGHT - LABEL_OFFSET + 10); // Adjusted for consistency
     ctx.textAlign = 'right';
     ctx.fillText('ほぼ1.0', WIDTH - 5, HEIGHT - LABEL_OFFSET + 10); // Adjusted position & text
   };
@@ -101,6 +113,7 @@ const VisualValueAdjuster: Component<VisualValueAdjusterProps> = (props) => {
     const rect = canvasRef.getBoundingClientRect();
     let mouseX = event.clientX - rect.left;
     let mouseY = event.clientY - rect.top;
+    const WIDTH = canvasRef.width;
 
     // Clamp coordinates to canvas bounds
     mouseX = Math.max(0, Math.min(WIDTH, mouseX));
@@ -110,9 +123,9 @@ const VisualValueAdjuster: Component<VisualValueAdjusterProps> = (props) => {
     let newMantissaFraction = mouseX / WIDTH;
     // Ensure fraction is < 1.0. If mouseX is exactly WIDTH, newMantissaFraction becomes 1.0.
     // (2**SIGNIFICAND_BITS -1) / 2**SIGNIFICAND_BITS is the largest fraction less than 1.
-    // For simplicity, using Math.nextDown(1.0) or a slightly smaller hardcoded value.
+    // For simplicity, using 1.0 - Number.EPSILON as a slightly smaller value.
     if (newMantissaFraction >= 1.0) {
-        newMantissaFraction = Math.nextDown(1.0);
+      newMantissaFraction = 1.0 - Number.EPSILON;
     }
 
     const newExponent = Math.round(MAX_STORED_EXPONENT * (1 - mouseY / HEIGHT));
@@ -141,6 +154,7 @@ const VisualValueAdjuster: Component<VisualValueAdjusterProps> = (props) => {
     const touch = event.touches[0];
     let touchX = touch.clientX - rect.left;
     let touchY = touch.clientY - rect.top;
+    const WIDTH = canvasRef.width;
 
     // Clamp coordinates to canvas bounds
     touchX = Math.max(0, Math.min(WIDTH, touchX));
@@ -150,7 +164,7 @@ const VisualValueAdjuster: Component<VisualValueAdjusterProps> = (props) => {
     let newMantissaFraction = touchX / WIDTH;
     // Ensure fraction is < 1.0. If touchX is exactly WIDTH, newMantissaFraction becomes 1.0.
     if (newMantissaFraction >= 1.0) {
-        newMantissaFraction = Math.nextDown(1.0);
+      newMantissaFraction = 1.0 - Number.EPSILON;
     }
 
     const newExponent = Math.round(MAX_STORED_EXPONENT * (1 - touchY / HEIGHT));
@@ -177,19 +191,20 @@ const VisualValueAdjuster: Component<VisualValueAdjusterProps> = (props) => {
   };
 
   onMount(() => {
-    draw(); // Initial draw
+    updateCanvasSize();
+    window.addEventListener('resize', updateCanvasSize);
   });
 
-  // Re-draw when props change
-  createEffect(draw);
+  createEffect(() => {
+    updateCanvasSize();
+  });
 
   return (
-    <div class="visual-adjuster-section">
+    <div class="visual-adjuster-section" ref={el => (containerRef = el)} style={{ width: '100%' }}>
       <label for="visualAdjusterCanvas">2Dビジュアル調整 (Y軸: 指数, X軸: 仮数小数部):</label>
       <canvas
         id="visualAdjusterCanvas"
         ref={canvasRef}
-        width={WIDTH}
         height={HEIGHT}
         onMouseDown={onMouseDown}
         onMouseMove={onMouseMove}
@@ -198,7 +213,7 @@ const VisualValueAdjuster: Component<VisualValueAdjusterProps> = (props) => {
         onTouchStart={onTouchStartHandler}
         onTouchMove={onTouchMoveHandler}
         onTouchEnd={onTouchEndHandler}
-        style={{ cursor: 'crosshair', border: '1px solid black' }}
+        style={{ cursor: 'crosshair', border: '1px solid black', width: '100%' }}
       />
     </div>
   );

@@ -121,7 +121,7 @@ const App: Component = () => {
     const e = exponentBitString();
     const m = significandBitString();
 
-    if (s.length === 1 && e.length === EXPONENT_BITS && m.length === SIGNIFICAND_BITS && /^[01]+$/.test(s+e+m) ) {
+    if (s.length === 1 && e.length === EXPONENT_BITS && m.length === SIGNIFICAND_BITS && /^[01]+$/.test(s + e + m)) {
       const result = convertBitsToDecimal(s, e, m);
 
       // If the bits were the last thing changed by the user (not decimal input, not sliders)
@@ -201,7 +201,7 @@ const App: Component = () => {
         // though slider logic should ideally produce valid bits.
         // For now, if sliders produce invalid combo leading to error string, decimal field shows it.
         if (result !== decimalStringInput()) {
-           setDecimalStringInput(result);
+          setDecimalStringInput(result);
         }
       }
     });
@@ -212,11 +212,11 @@ const App: Component = () => {
     const currentDecimalStr = decimalStringInput();
     if (currentDecimalStr.trim() === '') return '';
     const num = parseFloat(currentDecimalStr);
-    if (isNaN(num) && currentDecimalStr !== 'NaN' && currentDecimalStr.toLowerCase() !== 'infinity' && currentDecimalStr !== '-infinity' ) {
-        // Handles cases like abc but allows NaN, Infinity strings
-        if (currentDecimalStr.trim() !== '' && currentDecimalStr !== '-' && !currentDecimalStr.endsWith('.')) {
-            return '無効な数値入力';
-        }
+    if (isNaN(num) && currentDecimalStr !== 'NaN' && currentDecimalStr.toLowerCase() !== 'infinity' && currentDecimalStr !== '-infinity') {
+      // Handles cases like abc but allows NaN, Infinity strings
+      if (currentDecimalStr.trim() !== '' && currentDecimalStr !== '-' && !currentDecimalStr.endsWith('.')) {
+        return '無効な数値入力';
+      }
     }
     return currentDecimalStr; // Show the raw input for original
   });
@@ -238,7 +238,7 @@ const App: Component = () => {
     const maxFraction = (Math.pow(2, SIGNIFICAND_BITS) - 1) / Math.pow(2, SIGNIFICAND_BITS);
     setMantissaFractionValue(Math.min(newMantissaFraction, maxFraction));
     handleSliderChange(); // Reuse slider logic to update bits and decimal input
-                          // This also sets isLastChangeFromSliders = true, which is acceptable
+    // This also sets isLastChangeFromSliders = true, which is acceptable
   };
 
   const handleSpecialValueClick = (value: string) => {
@@ -255,14 +255,11 @@ const App: Component = () => {
       />
       {/* Interactive Controls Section */}
       <div class="interactive-controls-section">
-        {/* Visual Adjuster might take up a certain portion of width */}
-        <div style="flex-basis: 320px; /* Adjust as needed based on VisualValueAdjuster width */">
-          <VisualValueAdjuster
-            storedExponent={storedExponentValue}
-            mantissaFraction={mantissaFractionValue}
-            onPositionChange={handleVisualAdjusterChange}
-          />
-        </div>
+        <VisualValueAdjuster
+          storedExponent={storedExponentValue}
+          mantissaFraction={mantissaFractionValue}
+          onPositionChange={handleVisualAdjusterChange}
+        />
 
         {/* Sliders and Bits Group, takes remaining width */}
         <div class="sliders-and-bits-group">
